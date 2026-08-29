@@ -1,5 +1,11 @@
 # @open-slide/cli
 
+## 1.4.2
+
+### Patch Changes
+
+- [#426](https://github.com/1weiho/open-slide/pull/426) [`ba5af02`](https://github.com/1weiho/open-slide/commit/ba5af021b603805ad542939156ff2caa58c6d6bf) Thanks [@1weiho](https://github.com/1weiho)! - Teach the authoring skills and agent guide to write speech scripts into the built-in `notes` export instead of separate markdown files.
+
 ## 1.4.1
 
 ### Patch Changes
