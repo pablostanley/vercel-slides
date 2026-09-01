@@ -58,7 +58,7 @@ const Title = ({ children }: { children: React.ReactNode }) => (
     style={{
       fontFamily: font.display,
       fontSize: 164,
-      fontWeight: 700,
+      fontWeight: 500,
       lineHeight: 0.96,
       letterSpacing: '-0.04em',
       margin: 0,
@@ -251,7 +251,7 @@ const Cover: Page = () => (
             style={{
               fontFamily: font.display,
               fontSize: 164,
-              fontWeight: 700,
+              fontWeight: 500,
               lineHeight: 0.96,
               letterSpacing: '-0.04em',
               margin: 0,
@@ -338,7 +338,7 @@ const Features: Page = () => (
             style={{
               fontFamily: font.display,
               fontSize: 80,
-              fontWeight: 700,
+              fontWeight: 500,
               margin: 0,
               lineHeight: 1.06,
               letterSpacing: '-0.03em',
@@ -510,7 +510,7 @@ const Closer: Page = () => (
             animationDelay: '0.12s',
             fontFamily: font.display,
             fontSize: 148,
-            fontWeight: 700,
+            fontWeight: 500,
             margin: 0,
             lineHeight: 0.96,
             letterSpacing: '-0.04em',

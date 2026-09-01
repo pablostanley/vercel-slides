@@ -10,7 +10,7 @@ const Title = ({ children }: { children: ReactNode }) => (
     style={{
       fontFamily: "'Inter Tight', 'Inter', -apple-system, system-ui, sans-serif",
       fontSize: 132,
-      fontWeight: 600,
+      fontWeight: 500,
       lineHeight: 1.05,
       letterSpacing: '-0.02em',
       margin: 0,
@@ -168,7 +168,7 @@ const Content: Page = () => (
       style={{
         fontFamily: "'Inter Tight', 'Inter', system-ui, sans-serif",
         fontSize: 56,
-        fontWeight: 600,
+        fontWeight: 500,
         lineHeight: 1.1,
         letterSpacing: '-0.015em',
         margin: 0,
@@ -217,7 +217,7 @@ const Content: Page = () => (
             style={{
               fontFamily: "'Inter Tight', 'Inter', system-ui, sans-serif",
               fontSize: 32,
-              fontWeight: 600,
+              fontWeight: 500,
               letterSpacing: '-0.01em',
               margin: 0,
               color: '#202124',

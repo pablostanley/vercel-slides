@@ -28,7 +28,7 @@ A faithful riff on Minecraft's in-game UI: everything is a block. Hard pixel bev
 
 ## Typography
 
-- Display font: `"Press Start 2P", monospace` — the blocky 8-bit headline face (single weight 400). Glyphs are wide; keep headline words short.
+- Display font: `"Press Start 2P", monospace` — the blocky 8-bit headline face; declare headings at weight 500. Glyphs are wide; keep headline words short.
 - Body font: `"VT323", "Courier New", monospace` — readable pixel/terminal face (single weight 400). Use larger than a normal sans because the x-height runs small.
 - Google Fonts import: `https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap`
 - Render crisp: set `imageRendering: 'pixelated'` on pixel decorations; never anti-alias the block art.
@@ -150,7 +150,7 @@ const Title = ({ children }: { children: React.ReactNode }) => (
     style={{
       fontFamily: '"Press Start 2P", monospace',
       fontSize: 96,
-      fontWeight: 400,
+      fontWeight: 500,
       lineHeight: 1.08,
       letterSpacing: 0,
       margin: 0,

@@ -22,7 +22,7 @@ const Title = ({ children }: { children: ReactNode }) => (
     style={{
       fontFamily: "'Outfit', 'Inter', system-ui, sans-serif",
       fontSize: 152,
-      fontWeight: 800,
+      fontWeight: 500,
       lineHeight: 0.98,
       letterSpacing: '-0.025em',
       margin: 0,
@@ -216,7 +216,7 @@ const Content: Page = () => (
       style={{
         fontFamily: "'Outfit', 'Inter', system-ui, sans-serif",
         fontSize: 64,
-        fontWeight: 800,
+        fontWeight: 500,
         lineHeight: 1.05,
         letterSpacing: '-0.02em',
         margin: 0,

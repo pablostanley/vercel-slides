@@ -22,13 +22,13 @@ description: Light, warm-cream developer aesthetic inspired by Replit's IDE — 
 
 ## Typography
 
-- Display font: `"Space Grotesk", system-ui, -apple-system, sans-serif` — weight 700–800 for headlines.
+- Display font: `"Space Grotesk", system-ui, -apple-system, sans-serif` — weight 500 for headings.
 - Body font: `"IBM Plex Sans", system-ui, -apple-system, sans-serif` — weight 400–500.
 - Mono font: `"IBM Plex Mono", ui-monospace, Menlo, monospace` — weight 400–500, used for eyebrows, labels, and code.
 - Google Fonts import: `https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap`
 - Type-scale overrides (only what differs from `slide-authoring` defaults):
-  - Hero title: 164px, `fontWeight: 700`, `letterSpacing: '-0.04em'`, `lineHeight: 0.96`
-  - Section heading: 80px, `fontWeight: 700`, `letterSpacing: '-0.03em'`, `lineHeight: 1.06`
+  - Hero title: 164px, `fontWeight: 500`, `letterSpacing: '-0.04em'`, `lineHeight: 0.96`
+  - Section heading: 80px, `fontWeight: 500`, `letterSpacing: '-0.03em'`, `lineHeight: 1.06`
   - Body text: 34–40px
   - Eyebrow / label: 22px mono, `letterSpacing: '0.16em'`, `textTransform: 'uppercase'`
 
@@ -140,7 +140,7 @@ const Title = ({ children }: { children: React.ReactNode }) => (
     style={{
       fontFamily: '"Space Grotesk", system-ui, sans-serif',
       fontSize: 164,
-      fontWeight: 700,
+      fontWeight: 500,
       lineHeight: 0.96,
       letterSpacing: '-0.04em',
       margin: 0,

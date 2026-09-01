@@ -20,11 +20,11 @@ description: Playful pastel deck — peach canvas, hot-pink callouts, chunky dis
 
 ## Typography
 
-- Display font: `'Outfit', 'Inter', -apple-system, system-ui, sans-serif` — weight 800.
+- Display font: `'Outfit', 'Inter', -apple-system, system-ui, sans-serif` — weight 500 for headings.
 - Body font: `'Inter', system-ui, sans-serif` — weight 500.
 - Type scale:
   - Hero title: 152 px, line-height 0.98, letter-spacing -0.025em.
-  - Page heading: 64 px, weight 800.
+  - Page heading: 64 px, weight 500.
   - Body text: 34 px, line-height 1.45.
   - Eyebrow / sticker: 22 px, weight 700, letter-spacing 0.06em, sentence case.
 
@@ -44,7 +44,7 @@ const Title = ({ children }: { children: React.ReactNode }) => (
     style={{
       fontFamily: "'Outfit', 'Inter', system-ui, sans-serif",
       fontSize: 152,
-      fontWeight: 800,
+      fontWeight: 500,
       lineHeight: 0.98,
       letterSpacing: '-0.025em',
       margin: 0,
