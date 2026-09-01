@@ -1,8 +1,8 @@
-import { createVercelStarterDocuments } from '@open-slide/document';
+import { cloneMasterDocument } from '@open-slide/document';
 import { z } from 'zod';
 import { requireSession, verifyMutationRequest } from '@/lib/server/auth';
 import { getStore } from '@/lib/server/get-store';
-import { handleRouteError, parseJson } from '@/lib/server/http';
+import { handleRouteError, jsonError, parseJson } from '@/lib/server/http';
 
 const createDeckSchema = z
   .object({
@@ -25,20 +25,44 @@ export async function POST(request: Request) {
     const session = await requireSession();
     verifyMutationRequest(request, session);
     const input = await parseJson(request, createDeckSchema);
-    const documents = input.source === 'vercel-starter' ? createVercelStarterDocuments() : [];
-    const deck = await getStore().createDeck({
+    const store = getStore();
+    const starterSlugs = [
+      'cover',
+      'agenda',
+      'section',
+      'title-body',
+      'data-bars',
+      'decision',
+      'closing',
+    ];
+    const masters =
+      input.source === 'vercel-starter'
+        ? (await store.listPublishedMasters(session.id, 'vercel'))
+            .filter((master) => starterSlugs.includes(master.slug))
+            .sort(
+              (left, right) => starterSlugs.indexOf(left.slug) - starterSlugs.indexOf(right.slug),
+            )
+        : [];
+    if (input.source === 'vercel-starter' && masters.length !== starterSlugs.length) {
+      return jsonError(503, 'template_unavailable', 'The published Vercel Starter is not ready');
+    }
+    const deck = await store.createDeck({
       id: `deck:${crypto.randomUUID()}`,
       ownerId: session.id,
       title: input.title,
       templateLibraryId: 'library:vercel',
-      slides: documents.map((document) => {
+      slides: masters.map((master) => {
         const id = `slide:${crypto.randomUUID()}`;
         return {
           id,
-          document: { ...document, id },
+          document: cloneMasterDocument(
+            master.version.document,
+            id,
+            () => `element:${crypto.randomUUID()}`,
+          ),
           notes: '',
-          masterSlideId: null,
-          masterVersionId: null,
+          masterSlideId: master.id,
+          masterVersionId: master.version.id,
         };
       }),
     });

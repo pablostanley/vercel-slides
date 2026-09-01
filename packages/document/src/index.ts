@@ -1,5 +1,7 @@
 export * from './history';
+export * from './masters';
 export * from './migrations';
+export * from './renderer';
 export * from './rendering';
 export * from './schema';
 export * from './starter';

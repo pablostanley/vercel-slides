@@ -55,7 +55,7 @@ export function createVercelStarterDocuments(): SlideDocument[] {
   return [
     documentWith([
       text('▲', 96, 84, 80, 80, 52, 700),
-      text('What will you ship next?', 96, 410, 1420, 220, 128, 520),
+      text('What will you ship next?', 96, 410, 1420, 300, 128, 520),
       text('Vercel presentation', 96, 930, 600, 40, 24, 450, gray),
     ]),
     documentWith([

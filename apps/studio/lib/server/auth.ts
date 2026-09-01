@@ -209,7 +209,13 @@ export async function requireAdmin() {
 
 export function verifyMutationRequest(request: Request, session: SessionIdentity) {
   const origin = request.headers.get('origin');
-  if (origin && new URL(origin).origin !== new URL(request.url).origin) {
+  const requestUrl = new URL(request.url);
+  const forwardedHost = request.headers.get('x-forwarded-host');
+  const host = forwardedHost ?? request.headers.get('host') ?? requestUrl.host;
+  const forwardedProtocol = request.headers.get('x-forwarded-proto');
+  const protocol = forwardedProtocol ? `${forwardedProtocol}:` : requestUrl.protocol;
+  const publicOrigin = `${protocol}//${host}`;
+  if (origin && new URL(origin).origin !== publicOrigin) {
     throw new AuthError('forbidden', 'Cross-origin mutation rejected');
   }
   if (!safeEqual(request.headers.get('x-csrf-token'), session.csrfToken)) {

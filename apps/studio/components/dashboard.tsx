@@ -1,20 +1,25 @@
 'use client';
 
+import { SlideRenderer } from '@open-slide/document';
 import { Archive, Copy, MoreHorizontal, Plus, Search, Share2, Triangle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { DeckSummary } from '@/lib/models';
 import type { SessionIdentity } from '@/lib/server/auth';
+import { ShareDialog } from './share-dialog';
 
 type Props = { session: SessionIdentity; decks: DeckSummary[] };
 
 export function Dashboard({ session, decks }: Props) {
   const router = useRouter();
   const [creating, setCreating] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
   const [title, setTitle] = useState('Untitled presentation');
   const [source, setSource] = useState<'blank' | 'vercel-starter'>('blank');
   const [search, setSearch] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [sharingDeck, setSharingDeck] = useState<DeckSummary | null>(null);
   const visibleDecks = useMemo(
     () =>
       decks.filter(
@@ -25,6 +30,8 @@ export function Dashboard({ session, decks }: Props) {
   );
   const mine = visibleDecks.filter((deck) => deck.role === 'owner');
   const shared = visibleDecks.filter((deck) => deck.role !== 'owner');
+
+  useEffect(() => setHydrated(true), []);
 
   async function createDeck() {
     setCreating(true);
@@ -40,7 +47,28 @@ export function Dashboard({ session, decks }: Props) {
       setCreating(false);
       return;
     }
-    router.push(`/decks/${encodeURIComponent(result.deck.id)}`);
+    router.push(`/decks/${result.deck.id}`);
+  }
+
+  async function mutateDeck(
+    deck: DeckSummary,
+    method: 'PATCH' | 'DELETE' | 'POST',
+    body?: Record<string, unknown>,
+    suffix = '',
+  ) {
+    const response = await fetch(`/api/decks/${deck.id}${suffix}`, {
+      method,
+      headers: { 'content-type': 'application/json', 'x-csrf-token': session.csrfToken },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    const result = response.status === 204 ? null : await response.json();
+    if (!response.ok) {
+      setError(result?.error?.message ?? 'Could not update the presentation');
+      return;
+    }
+    setOpenMenu(null);
+    if (method === 'POST' && result?.deck) router.push(`/decks/${result.deck.id}`);
+    else router.refresh();
   }
 
   return (
@@ -114,7 +142,7 @@ export function Dashboard({ session, decks }: Props) {
               <button
                 type="button"
                 className="button button-primary"
-                disabled={creating || title.trim().length === 0}
+                disabled={!hydrated || creating || title.trim().length === 0}
                 onClick={createDeck}
               >
                 {creating ? 'Creating…' : 'Create presentation'}
@@ -132,11 +160,19 @@ export function Dashboard({ session, decks }: Props) {
           title="My presentations"
           decks={mine}
           empty="Your presentations will appear here."
+          openMenu={openMenu}
+          onOpenMenu={setOpenMenu}
+          onShare={setSharingDeck}
+          onMutate={mutateDeck}
         />
         <DeckSection
           title="Shared with me"
           decks={shared}
           empty="Presentations shared with you will appear here."
+          openMenu={openMenu}
+          onOpenMenu={setOpenMenu}
+          onShare={setSharingDeck}
+          onMutate={mutateDeck}
         />
 
         <section className="library-row" aria-labelledby="libraries-title">
@@ -148,6 +184,14 @@ export function Dashboard({ session, decks }: Props) {
           {session.role === 'admin' && <a href="/admin/templates/vercel">Manage masters</a>}
         </section>
       </div>
+      {sharingDeck && (
+        <ShareDialog
+          deckId={sharingDeck.id}
+          deckRole={sharingDeck.role}
+          session={session}
+          onClose={() => setSharingDeck(null)}
+        />
+      )}
     </main>
   );
 }
@@ -156,10 +200,23 @@ function DeckSection({
   title,
   decks,
   empty,
+  openMenu,
+  onOpenMenu,
+  onShare,
+  onMutate,
 }: {
   title: string;
   decks: DeckSummary[];
   empty: string;
+  openMenu: string | null;
+  onOpenMenu: (deckId: string | null) => void;
+  onShare: (deck: DeckSummary) => void;
+  onMutate: (
+    deck: DeckSummary,
+    method: 'PATCH' | 'DELETE' | 'POST',
+    body?: Record<string, unknown>,
+    suffix?: string,
+  ) => void;
 }) {
   return (
     <section className="deck-section">
@@ -173,13 +230,15 @@ function DeckSection({
         <div className="deck-grid">
           {decks.map((deck) => (
             <article className="deck-card" key={deck.id}>
-              <a href={`/decks/${encodeURIComponent(deck.id)}`} className="deck-thumbnail">
-                <div className="thumbnail-empty">
-                  <Triangle fill="currentColor" strokeWidth={0} />
-                  <span>
-                    {deck.slideCount === 0 ? 'Add your first slide' : `${deck.slideCount} slides`}
-                  </span>
-                </div>
+              <a href={`/decks/${deck.id}`} className="deck-thumbnail">
+                {deck.firstSlide ? (
+                  <SlideRenderer document={deck.firstSlide.document} />
+                ) : (
+                  <div className="thumbnail-empty">
+                    <Triangle fill="currentColor" strokeWidth={0} />
+                    <span>Add your first slide</span>
+                  </div>
+                )}
               </a>
               <div className="deck-meta">
                 <div>
@@ -192,9 +251,73 @@ function DeckSection({
                   type="button"
                   className="icon-button"
                   aria-label={`More actions for ${deck.title}`}
+                  aria-expanded={openMenu === deck.id}
+                  onClick={() => onOpenMenu(openMenu === deck.id ? null : deck.id)}
                 >
                   <MoreHorizontal size={16} />
                 </button>
+                {openMenu === deck.id && (
+                  <div className="deck-action-menu" role="menu">
+                    <a href={`/decks/${deck.id}`} role="menuitem">
+                      Open
+                    </a>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() => onMutate(deck, 'POST', undefined, '/duplicate')}
+                    >
+                      Duplicate
+                    </button>
+                    {deck.role !== 'viewer' && (
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          const title = window.prompt('Presentation name', deck.title)?.trim();
+                          if (title && title !== deck.title) {
+                            onMutate(deck, 'PATCH', {
+                              expectedRevision: deck.revision,
+                              title,
+                            });
+                          }
+                        }}
+                      >
+                        Rename
+                      </button>
+                    )}
+                    <button type="button" role="menuitem" onClick={() => onShare(deck)}>
+                      Share
+                    </button>
+                    {deck.role === 'owner' && (
+                      <>
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={() =>
+                            onMutate(deck, 'PATCH', {
+                              expectedRevision: deck.revision,
+                              status: 'archived',
+                            })
+                          }
+                        >
+                          Archive
+                        </button>
+                        <button
+                          type="button"
+                          role="menuitem"
+                          className="danger-action"
+                          onClick={() => {
+                            if (window.confirm(`Delete “${deck.title}”?`)) {
+                              onMutate(deck, 'DELETE');
+                            }
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="sr-only">
                 <Share2 /> <Copy /> <Archive />

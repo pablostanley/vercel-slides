@@ -7,12 +7,16 @@ import type {
   DeckRole,
   DeckSlide,
   DeckSummary,
+  PublishedMaster,
+  StudioAsset,
   StudioUser,
 } from '@/lib/models';
 import {
   type CreateDeckInput,
   type IdentityInput,
   isOwner,
+  type MutateDeckSlidesInput,
+  type RecordAssetInput,
   type ShareDeckInput,
   StoreError,
   type StudioStore,
@@ -88,6 +92,50 @@ function mapSlide(row: Row): DeckSlide {
     revision: Number(row.revision),
     createdAt: isoValue(row.created_at),
     updatedAt: isoValue(row.updated_at),
+  };
+}
+
+function mapPublishedMaster(row: Row): PublishedMaster {
+  return {
+    id: stringValue(row.id),
+    libraryId: stringValue(row.library_id),
+    slug: stringValue(row.slug),
+    title: stringValue(row.title),
+    description: stringValue(row.description),
+    category: stringValue(row.category),
+    tags: (row.tags ?? []) as string[],
+    position: Number(row.position),
+    currentPublishedVersionId: stringValue(row.current_published_version_id),
+    status: 'active',
+    createdAt: isoValue(row.created_at),
+    updatedAt: isoValue(row.updated_at),
+    version: {
+      id: stringValue(row.version_id),
+      masterSlideId: stringValue(row.id),
+      version: Number(row.version),
+      schemaVersion: Number(row.version_schema_version),
+      document: migrateSlideDocument(row.document_json),
+      thumbnail: (row.thumbnail_json as Record<string, unknown> | null) ?? null,
+      createdBy: stringValue(row.created_by),
+      status: 'published',
+      createdAt: isoValue(row.version_created_at),
+      publishedAt: isoValue(row.published_at),
+    },
+  };
+}
+
+function mapAsset(row: Row): StudioAsset {
+  return {
+    id: stringValue(row.id),
+    ownerId: stringValue(row.owner_id),
+    deckId: nullableString(row.deck_id),
+    blobUrl: stringValue(row.blob_url),
+    pathname: stringValue(row.pathname),
+    contentType: stringValue(row.content_type),
+    width: row.width === null ? null : Number(row.width),
+    height: row.height === null ? null : Number(row.height),
+    size: Number(row.size),
+    createdAt: isoValue(row.created_at),
   };
 }
 
@@ -384,5 +432,275 @@ export class NeonStudioStore implements StudioStore {
       deckId,
       normalizedEmail,
     ]);
+  }
+
+  async mutateDeckSlides(input: MutateDeckSlidesInput): Promise<DeckAccess> {
+    const mutation = input.mutation;
+    let rows: Row[] = [];
+    if (mutation.operation === 'update') {
+      rows = await query(
+        `WITH authorized AS (
+           UPDATE decks d SET revision = revision + 1, updated_at = now()
+           WHERE d.id = $1 AND d.revision = $2
+             AND (d.owner_id = $3 OR EXISTS (
+               SELECT 1 FROM deck_members WHERE deck_id = d.id AND user_id = $3 AND role = 'editor'
+             ))
+             AND EXISTS (SELECT 1 FROM deck_slides WHERE id = $4 AND deck_id = d.id)
+           RETURNING d.*
+         ), changed AS (
+           UPDATE deck_slides SET
+             document_json = COALESCE($5::jsonb, document_json),
+             schema_version = COALESCE($6, schema_version),
+             notes = COALESCE($7, notes), revision = revision + 1, updated_at = now()
+           WHERE id = $4 AND deck_id IN (SELECT id FROM authorized)
+           RETURNING id
+         ), audit AS (
+           INSERT INTO deck_revisions(deck_id, revision, operation, actor_id, payload)
+           SELECT id, revision, 'update-slide', $3, jsonb_build_object('slideId', $4)
+           FROM authorized
+         ) SELECT * FROM authorized`,
+        [
+          input.deckId,
+          input.expectedRevision,
+          input.actorId,
+          mutation.slideId,
+          mutation.document ? JSON.stringify(mutation.document) : null,
+          mutation.document?.schemaVersion ?? null,
+          mutation.notes ?? null,
+        ],
+      );
+    } else if (mutation.operation === 'insert') {
+      rows = await query(
+        `WITH target AS (
+           SELECT COALESCE((SELECT position FROM deck_slides WHERE id = $4 AND deck_id = $1), -1) AS position
+         ), authorized AS (
+           UPDATE decks d SET revision = revision + 1, updated_at = now()
+           WHERE d.id = $1 AND d.revision = $2
+             AND (d.owner_id = $3 OR EXISTS (
+               SELECT 1 FROM deck_members WHERE deck_id = d.id AND user_id = $3 AND role = 'editor'
+             ))
+             AND ($4::text IS NULL OR EXISTS (
+               SELECT 1 FROM deck_slides WHERE id = $4 AND deck_id = d.id
+             ))
+           RETURNING d.*
+         ), shifted AS (
+           UPDATE deck_slides SET position = position + 1
+           WHERE deck_id IN (SELECT id FROM authorized)
+             AND position > (SELECT position FROM target)
+         ), inserted AS (
+           INSERT INTO deck_slides(
+             id, deck_id, position, master_slide_id, master_version_id, schema_version, document_json
+           )
+           SELECT $5, id, (SELECT position + 1 FROM target), $6, $7, $8, $9::jsonb
+           FROM authorized
+           RETURNING id
+         ), audit AS (
+           INSERT INTO deck_revisions(deck_id, revision, operation, actor_id, payload)
+           SELECT id, revision, 'insert-slide', $3, jsonb_build_object('slideId', $5)
+           FROM authorized
+         ) SELECT * FROM authorized`,
+        [
+          input.deckId,
+          input.expectedRevision,
+          input.actorId,
+          mutation.afterSlideId,
+          mutation.slideId,
+          mutation.masterSlideId,
+          mutation.masterVersionId,
+          mutation.document.schemaVersion,
+          JSON.stringify(mutation.document),
+        ],
+      );
+    } else if (mutation.operation === 'duplicate') {
+      rows = await query(
+        `WITH source AS (
+           SELECT * FROM deck_slides WHERE id = $4 AND deck_id = $1
+         ), authorized AS (
+           UPDATE decks d SET revision = revision + 1, updated_at = now()
+           WHERE d.id = $1 AND d.revision = $2
+             AND (d.owner_id = $3 OR EXISTS (
+               SELECT 1 FROM deck_members WHERE deck_id = d.id AND user_id = $3 AND role = 'editor'
+             )) AND EXISTS (SELECT 1 FROM source)
+           RETURNING d.*
+         ), shifted AS (
+           UPDATE deck_slides SET position = position + 1
+           WHERE deck_id IN (SELECT id FROM authorized)
+             AND position > (SELECT position FROM source)
+         ), inserted AS (
+           INSERT INTO deck_slides(
+             id, deck_id, position, master_slide_id, master_version_id,
+             schema_version, document_json, notes
+           )
+           SELECT $5, deck_id, position + 1, master_slide_id, master_version_id,
+             $6, $7::jsonb, notes FROM source
+           WHERE deck_id IN (SELECT id FROM authorized)
+           RETURNING id
+         ), audit AS (
+           INSERT INTO deck_revisions(deck_id, revision, operation, actor_id, payload)
+           SELECT id, revision, 'duplicate-slide', $3, jsonb_build_object('slideId', $4, 'newSlideId', $5)
+           FROM authorized
+         ) SELECT * FROM authorized`,
+        [
+          input.deckId,
+          input.expectedRevision,
+          input.actorId,
+          mutation.slideId,
+          mutation.newSlideId,
+          mutation.document.schemaVersion,
+          JSON.stringify(mutation.document),
+        ],
+      );
+    } else if (mutation.operation === 'delete') {
+      rows = await query(
+        `WITH authorized AS (
+           UPDATE decks d SET revision = revision + 1, updated_at = now()
+           WHERE d.id = $1 AND d.revision = $2
+             AND (d.owner_id = $3 OR EXISTS (
+               SELECT 1 FROM deck_members WHERE deck_id = d.id AND user_id = $3 AND role = 'editor'
+             ))
+             AND EXISTS (SELECT 1 FROM deck_slides WHERE id = $4 AND deck_id = d.id)
+           RETURNING d.*
+         ), deleted AS (
+           DELETE FROM deck_slides WHERE id = $4 AND deck_id IN (SELECT id FROM authorized)
+         ), ordered AS (
+           SELECT id, row_number() OVER (ORDER BY position) - 1 AS next_position
+           FROM deck_slides WHERE deck_id IN (SELECT id FROM authorized)
+         ), normalized AS (
+           UPDATE deck_slides ds SET position = ordered.next_position
+           FROM ordered WHERE ds.id = ordered.id
+         ), audit AS (
+           INSERT INTO deck_revisions(deck_id, revision, operation, actor_id, payload)
+           SELECT id, revision, 'delete-slide', $3, jsonb_build_object('slideId', $4)
+           FROM authorized
+         ) SELECT * FROM authorized`,
+        [input.deckId, input.expectedRevision, input.actorId, mutation.slideId],
+      );
+    } else if (mutation.operation === 'reorder') {
+      rows = await query(
+        `WITH requested AS (
+           SELECT slide_id, ordinality - 1 AS position
+           FROM unnest($4::text[]) WITH ORDINALITY AS slides(slide_id, ordinality)
+         ), authorized AS (
+           UPDATE decks d SET revision = revision + 1, updated_at = now()
+           WHERE d.id = $1 AND d.revision = $2
+             AND (d.owner_id = $3 OR EXISTS (
+               SELECT 1 FROM deck_members WHERE deck_id = d.id AND user_id = $3 AND role = 'editor'
+             ))
+             AND (SELECT count(*) FROM deck_slides WHERE deck_id = d.id) = cardinality($4::text[])
+             AND NOT EXISTS (
+               SELECT 1 FROM requested r
+               WHERE NOT EXISTS (SELECT 1 FROM deck_slides WHERE id = r.slide_id AND deck_id = d.id)
+             )
+           RETURNING d.*
+         ), reordered AS (
+           UPDATE deck_slides ds SET position = requested.position
+           FROM requested
+           WHERE ds.id = requested.slide_id AND ds.deck_id IN (SELECT id FROM authorized)
+         ), audit AS (
+           INSERT INTO deck_revisions(deck_id, revision, operation, actor_id, payload)
+           SELECT id, revision, 'reorder-slides', $3, jsonb_build_object('slideIds', $4::text[])
+           FROM authorized
+         ) SELECT * FROM authorized`,
+        [input.deckId, input.expectedRevision, input.actorId, mutation.slideIds],
+      );
+    } else {
+      const payload = mutation.slides.map((slide, position) => ({
+        id: slide.id,
+        position,
+        master_slide_id: slide.masterSlideId,
+        master_version_id: slide.masterVersionId,
+        schema_version: slide.document.schemaVersion,
+        document_json: slide.document,
+        notes: slide.notes,
+      }));
+      rows = await query(
+        `WITH authorized AS (
+           UPDATE decks d SET revision = revision + 1, updated_at = now()
+           WHERE d.id = $1 AND d.revision = $2
+             AND (d.owner_id = $3 OR EXISTS (
+               SELECT 1 FROM deck_members WHERE deck_id = d.id AND user_id = $3 AND role = 'editor'
+             ))
+           RETURNING d.*
+         ), removed AS (
+           DELETE FROM deck_slides WHERE deck_id IN (SELECT id FROM authorized)
+         ), restored AS (
+           INSERT INTO deck_slides(
+             id, deck_id, position, master_slide_id, master_version_id,
+             schema_version, document_json, notes
+           )
+           SELECT slide.id, $1, slide.position, slide.master_slide_id, slide.master_version_id,
+             slide.schema_version, slide.document_json, slide.notes
+           FROM jsonb_to_recordset($4::jsonb) AS slide(
+             id text, position integer, master_slide_id text, master_version_id text,
+             schema_version integer, document_json jsonb, notes text
+           ) WHERE EXISTS (SELECT 1 FROM authorized)
+         ), audit AS (
+           INSERT INTO deck_revisions(deck_id, revision, operation, actor_id, payload)
+           SELECT id, revision, 'restore-slides', $3, jsonb_build_object('slideCount', jsonb_array_length($4::jsonb))
+           FROM authorized
+         ) SELECT * FROM authorized`,
+        [input.deckId, input.expectedRevision, input.actorId, JSON.stringify(payload)],
+      );
+    }
+    if (!rows[0]) {
+      const access = await requireAccess(input.actorId, input.deckId);
+      if (access.role === 'viewer') throw new StoreError('forbidden', 'Viewer access is read-only');
+      if (access.deck.revision !== input.expectedRevision) {
+        throw new StoreError(
+          'conflict',
+          'The presentation changed in another session',
+          access.deck.revision,
+        );
+      }
+      throw new StoreError('invalid', 'The slide mutation could not be applied');
+    }
+    const access = await this.getDeckAccess(input.actorId, input.deckId);
+    if (!access) throw new StoreError('not_found', 'Presentation not found');
+    return access;
+  }
+
+  async listPublishedMasters(_userId: string, librarySlug: string): Promise<PublishedMaster[]> {
+    const rows = await query(
+      `SELECT ms.*, mv.id AS version_id, mv.version, mv.schema_version AS version_schema_version,
+         mv.document_json, mv.thumbnail_json, mv.created_by, mv.created_at AS version_created_at,
+         mv.published_at
+       FROM master_slides ms
+       JOIN template_libraries tl ON tl.id = ms.library_id
+       JOIN master_slide_versions mv ON mv.id = ms.current_published_version_id
+       WHERE tl.slug = $1 AND tl.status = 'active' AND ms.status = 'active'
+         AND mv.status = 'published'
+       ORDER BY ms.position`,
+      [librarySlug],
+    );
+    return rows.map(mapPublishedMaster);
+  }
+
+  async getPublishedMaster(userId: string, versionId: string): Promise<PublishedMaster | null> {
+    const masters = await this.listPublishedMasters(userId, 'vercel');
+    return masters.find((master) => master.version.id === versionId) ?? null;
+  }
+
+  async recordAsset(input: RecordAssetInput): Promise<StudioAsset> {
+    const access = await requireAccess(input.ownerId, input.deckId);
+    if (access.role === 'viewer') throw new StoreError('forbidden', 'Viewer access is read-only');
+    const rows = await query(
+      `INSERT INTO assets(
+         id, owner_id, deck_id, blob_url, pathname, content_type, width, height, size
+       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+      [
+        input.id,
+        input.ownerId,
+        input.deckId,
+        input.blobUrl,
+        input.pathname,
+        input.contentType,
+        input.width,
+        input.height,
+        input.size,
+      ],
+    );
+    const row = rows[0];
+    if (!row) throw new Error('Failed to record asset');
+    return mapAsset(row);
   }
 }

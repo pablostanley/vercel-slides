@@ -1,3 +1,5 @@
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import {
   cloneMasterDocument,
@@ -7,6 +9,7 @@ import {
   createVercelStarterDocuments,
   migrateSlideDocument,
   redoHistory,
+  SlideRenderer,
   slideDocumentSchema,
   undoHistory,
 } from './index';
@@ -157,5 +160,17 @@ describe('Vercel starter', () => {
     expect(documents).toHaveLength(7);
     expect(new Set(documents.map((document) => document.id)).size).toBe(7);
     for (const document of documents) expect(slideDocumentSchema.parse(document)).toEqual(document);
+  });
+});
+
+describe('scene renderer', () => {
+  it('renders trusted text without interpreting it as markup', () => {
+    const document = createVercelStarterDocuments()[0];
+    const first = document.elements.find((element) => element.type === 'text');
+    if (first?.type !== 'text') throw new Error('Expected seeded text');
+    first.text = '<script>alert(1)</script>';
+    const markup = renderToStaticMarkup(createElement(SlideRenderer, { document }));
+    expect(markup).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
+    expect(markup).not.toContain('<script>');
   });
 });
