@@ -1,0 +1,35 @@
+@import "./base.css";
+@import "./dark.css";
+@import "./tailwind.css";
+
+@font-face {
+  font-family: "Geist Sans";
+  src: url("./fonts/GeistVF.woff2") format("woff2-variations");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("./fonts/GeistMonoVF.woff2") format("woff2-variations");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+:root {
+  --font-geist-sans: "Geist Sans", var(--font-sans-fallback);
+  --font-geist-mono: "Geist Mono", var(--font-mono-fallback);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --background: var(--ds-background-100);
+  --foreground: var(--ds-gray-1000);
+  --canvas: var(--ds-background-200);
+  --card: var(--ds-background-100);
+  --muted: var(--ds-gray-alpha-100);
+  --muted-foreground: var(--ds-gray-900);
+  --border: var(--ds-gray-alpha-400);
+  --ring: var(--ds-blue-700);
+  --radius: var(--geist-radius);
+}

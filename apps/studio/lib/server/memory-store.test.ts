@@ -1,0 +1,110 @@
+import { beforeEach, describe, expect, it } from 'vitest';
+import { MemoryStudioStore, resetMemoryStore } from './memory-store';
+import type { StoreError } from './store';
+
+const owner = {
+  id: 'user:owner',
+  email: 'owner@vercel.com',
+  name: 'Owner',
+  username: 'owner',
+  avatarUrl: null,
+  role: 'user' as const,
+};
+const collaborator = {
+  id: 'user:collaborator',
+  email: 'collaborator@vercel.com',
+  name: 'Collaborator',
+  username: 'collaborator',
+  avatarUrl: null,
+  role: 'user' as const,
+};
+
+beforeEach(() => resetMemoryStore());
+
+describe('deck authorization and revisions', () => {
+  it('does not expose a private deck to another user', async () => {
+    const store = new MemoryStudioStore();
+    await store.ensureUser(owner);
+    await store.ensureUser(collaborator);
+    await store.createDeck({
+      id: 'deck:private',
+      ownerId: owner.id,
+      title: 'Private',
+      templateLibraryId: 'library:vercel',
+      slides: [],
+    });
+    expect(await store.getDeckAccess(collaborator.id, 'deck:private')).toBeNull();
+  });
+
+  it('keeps viewers read-only and lets editors mutate with revision checks', async () => {
+    const store = new MemoryStudioStore();
+    await store.ensureUser(owner);
+    await store.ensureUser(collaborator);
+    const deck = await store.createDeck({
+      id: 'deck:shared',
+      ownerId: owner.id,
+      title: 'Shared',
+      templateLibraryId: 'library:vercel',
+      slides: [],
+    });
+    await store.shareDeck({
+      actorId: owner.id,
+      deckId: deck.id,
+      email: collaborator.email,
+      role: 'viewer',
+    });
+    await expect(
+      store.updateDeck({
+        actorId: collaborator.id,
+        deckId: deck.id,
+        expectedRevision: 0,
+        title: 'Viewer edit',
+      }),
+    ).rejects.toMatchObject({ code: 'forbidden' });
+
+    await store.shareDeck({
+      actorId: owner.id,
+      deckId: deck.id,
+      email: collaborator.email,
+      role: 'editor',
+    });
+    const updated = await store.updateDeck({
+      actorId: collaborator.id,
+      deckId: deck.id,
+      expectedRevision: 0,
+      title: 'Editor edit',
+    });
+    expect(updated).toMatchObject({ title: 'Editor edit', revision: 1 });
+    await expect(
+      store.updateDeck({
+        actorId: owner.id,
+        deckId: deck.id,
+        expectedRevision: 0,
+        title: 'Stale edit',
+      }),
+    ).rejects.toEqual(
+      expect.objectContaining<Partial<StoreError>>({ code: 'conflict', currentRevision: 1 }),
+    );
+  });
+
+  it('converts an email invite into membership when the user first signs in', async () => {
+    const store = new MemoryStudioStore();
+    await store.ensureUser(owner);
+    const deck = await store.createDeck({
+      id: 'deck:invite',
+      ownerId: owner.id,
+      title: 'Invite',
+      templateLibraryId: 'library:vercel',
+      slides: [],
+    });
+    const invite = await store.shareDeck({
+      actorId: owner.id,
+      deckId: deck.id,
+      email: collaborator.email,
+      role: 'editor',
+    });
+    expect(invite.pending).toBe(true);
+    await store.ensureUser(collaborator);
+    expect(await store.getDeckAccess(collaborator.id, deck.id)).toMatchObject({ role: 'editor' });
+  });
+});

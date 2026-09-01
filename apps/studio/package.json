@@ -1,0 +1,33 @@
+{
+  "name": "studio",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "db:migrate": "node --experimental-strip-types scripts/migrate.ts",
+    "dev": "next dev --port 3100",
+    "start": "next start --port 3100",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
+    "@open-slide/core": "workspace:*",
+    "@open-slide/document": "workspace:*",
+    "@vercel/blob": "^2.8.0",
+    "jose": "^6.2.10",
+    "lucide-react": "^1.25.0",
+    "next": "16.2.12",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "@playwright/test": "~1.62.1",
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^6.0.3",
+    "vitest": "^2.1.9"
+  }
+}

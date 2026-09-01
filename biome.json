@@ -12,6 +12,7 @@
       "!**/node_modules",
       "!**/*.tsbuildinfo",
       "!**/*.svg",
+      "!**/next-env.d.ts",
       "!packages/core/src/app/components/ui",
       "!packages/core/src/app/geist"
     ]
