@@ -1,7 +1,8 @@
 import { type SlideDocument, slideDocumentSchema } from './schema';
-import { createVercelStarterDocuments } from './starter';
+import generatedCatalog from './vercel-master-documents.generated.json';
 
 export const VERCEL_LIBRARY_ID = 'library:vercel';
+export const VERCEL_MASTER_SEED_VERSION = 'vercel-masters-v1';
 
 export type PublishedMasterDocument = {
   id: string;
@@ -17,60 +18,36 @@ export type PublishedMasterDocument = {
   document: SlideDocument;
 };
 
-const starterMetadata = [
-  ['cover', 'Cover — What will you ship?', 'Covers', ['cover', 'title', 'opening']],
-  ['agenda', 'Agenda — Numbered list', 'Agenda', ['agenda', 'contents', 'numbered']],
-  ['section', 'Section — Numbered divider', 'Sections', ['section', 'divider', 'chapter']],
-  ['title-body', 'Content — Title and body', 'Content', ['content', 'title', 'body']],
-  ['data-bars', 'Data — Bar chart', 'Data', ['data', 'chart', 'metrics']],
-  ['decision', 'Comparison — Decision', 'Comparison', ['comparison', 'decision', 'options']],
-  ['closing', 'Closing — Thank you', 'Closing', ['closing', 'thank you', 'questions']],
-] as const;
+type GeneratedMaster = {
+  slug: string;
+  title: string;
+  category: string;
+  tags: string[];
+  document: unknown;
+};
 
-function stableDocument(document: SlideDocument, slug: string) {
-  const elementIds = new Map(
-    document.elements.map((element, index) => [
-      element.id,
-      `master:vercel:${slug}:element:${index + 1}`,
-    ]),
-  );
-  return slideDocumentSchema.parse({
-    ...document,
-    id: `master:vercel:${slug}:document:1`,
-    elements: document.elements.map((element) => ({
-      ...element,
-      id: elementIds.get(element.id),
-      parentId: element.parentId ? elementIds.get(element.parentId) : element.parentId,
-      ...(element.type === 'group'
-        ? { childIds: element.childIds.map((id) => elementIds.get(id) ?? id) }
-        : {}),
-      ...(element.type === 'chart'
-        ? {
-            series: element.series.map((series, seriesIndex) => ({
-              ...series,
-              id: `master:vercel:${slug}:series:${seriesIndex + 1}`,
-            })),
-          }
-        : {}),
-    })),
-  });
+const parsedCatalog = (generatedCatalog.masters as GeneratedMaster[]).map(
+  (master, position): PublishedMasterDocument => ({
+    id: `master:vercel:${master.slug}`,
+    versionId: `master-version:vercel:${master.slug}:1`,
+    version: 1,
+    libraryId: VERCEL_LIBRARY_ID,
+    slug: master.slug,
+    title: master.title,
+    description: `Vercel ${master.title.toLowerCase()} master slide`,
+    category: master.category,
+    tags: [...master.tags],
+    position,
+    document: slideDocumentSchema.parse(master.document),
+  }),
+);
+
+export function createVercelMasterCatalog(): PublishedMasterDocument[] {
+  return parsedCatalog.map((master) => ({
+    ...master,
+    tags: [...master.tags],
+    document: structuredClone(master.document),
+  }));
 }
 
-export function createPreviewMasterCatalog(): PublishedMasterDocument[] {
-  return createVercelStarterDocuments().map((document, index) => {
-    const [slug, title, category, tags] = starterMetadata[index];
-    return {
-      id: `master:vercel:${slug}`,
-      versionId: `master-version:vercel:${slug}:1`,
-      version: 1,
-      libraryId: VERCEL_LIBRARY_ID,
-      slug,
-      title,
-      description: `Vercel ${category.toLowerCase()} master slide`,
-      category,
-      tags: [...tags],
-      position: index,
-      document: stableDocument(document, slug),
-    };
-  });
-}
+export const createPreviewMasterCatalog = createVercelMasterCatalog;

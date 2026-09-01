@@ -5,7 +5,10 @@
   "scripts": {
     "build": "next build",
     "db:migrate": "node --experimental-strip-types scripts/migrate.ts",
+    "db:seed": "node --experimental-strip-types scripts/seed-vercel-masters.ts",
     "dev": "next dev --port 3100",
+    "masters:capture": "node --experimental-strip-types scripts/capture-vercel-masters.mjs",
+    "masters:verify": "node --experimental-strip-types scripts/verify-rendered-masters.mjs",
     "start": "next start --port 3100",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",

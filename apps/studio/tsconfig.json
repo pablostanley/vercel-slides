@@ -21,6 +21,7 @@
     },
     "types": ["node", "vitest/globals"],
     "allowJs": true,
+    "allowImportingTsExtensions": true,
     "skipLibCheck": true
   },
   "include": [

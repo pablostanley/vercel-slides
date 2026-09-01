@@ -79,7 +79,7 @@ function slideRestorePayload(slides: DeckSlide[]) {
   }));
 }
 
-function textElement(): SlideElement {
+export function textElement(): SlideElement {
   return {
     id: `element:${crypto.randomUUID()}`,
     type: 'text',
@@ -106,7 +106,7 @@ function textElement(): SlideElement {
   };
 }
 
-function shapeElement(): SlideElement {
+export function shapeElement(): SlideElement {
   return {
     id: `element:${crypto.randomUUID()}`,
     type: 'shape',
@@ -124,7 +124,7 @@ function shapeElement(): SlideElement {
   };
 }
 
-function chartElement(): SlideElement {
+export function chartElement(): SlideElement {
   return {
     id: `element:${crypto.randomUUID()}`,
     type: 'chart',
@@ -154,7 +154,7 @@ function chartElement(): SlideElement {
   };
 }
 
-function tableElement(): SlideElement {
+export function tableElement(): SlideElement {
   return {
     id: `element:${crypto.randomUUID()}`,
     type: 'table',
@@ -211,7 +211,7 @@ function tableElement(): SlideElement {
   };
 }
 
-function codeElement(): SlideElement {
+export function codeElement(): SlideElement {
   return {
     id: `element:${crypto.randomUUID()}`,
     type: 'code',
@@ -236,9 +236,11 @@ function codeElement(): SlideElement {
 export function StudioEditor({
   session,
   initialAccess,
+  testAssetUploads = false,
 }: {
   session: SessionIdentity;
   initialAccess: DeckAccess;
+  testAssetUploads?: boolean;
 }) {
   const editable = initialAccess.role !== 'viewer';
   const initialSelected = initialAccess.slides[0]?.id ?? null;
@@ -700,21 +702,39 @@ export function StudioEditor({
         };
         image.src = url;
       });
-      const blob = await upload(
-        uploadPathname(session.id, initialAccess.deck.id, file.name),
-        file,
-        {
-          access: 'public',
-          handleUploadUrl: '/api/assets/upload',
+      let imageUrl: string;
+      if (testAssetUploads) {
+        const form = new FormData();
+        form.set('file', file);
+        form.set('deckId', initialAccess.deck.id);
+        form.set('width', String(dimensions.width));
+        form.set('height', String(dimensions.height));
+        const response = await fetch('/api/assets/test-upload', {
+          method: 'POST',
           headers: { 'x-csrf-token': session.csrfToken },
-          clientPayload: JSON.stringify({
-            deckId: initialAccess.deck.id,
-            size: file.size,
-            width: dimensions.width,
-            height: dimensions.height,
-          }),
-        },
-      );
+          body: form,
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error?.message ?? 'Image upload failed');
+        imageUrl = result.url;
+      } else {
+        const blob = await upload(
+          uploadPathname(session.id, initialAccess.deck.id, file.name),
+          file,
+          {
+            access: 'public',
+            handleUploadUrl: '/api/assets/upload',
+            headers: { 'x-csrf-token': session.csrfToken },
+            clientPayload: JSON.stringify({
+              deckId: initialAccess.deck.id,
+              size: file.size,
+              width: dimensions.width,
+              height: dimensions.height,
+            }),
+          },
+        );
+        imageUrl = blob.url;
+      }
       insertElement({
         id: `element:${crypto.randomUUID()}`,
         type: 'image',
@@ -727,7 +747,7 @@ export function StudioEditor({
         visible: true,
         locked: false,
         zIndex: 10,
-        src: blob.url,
+        src: imageUrl,
         alt: file.name,
         fit: 'cover',
         style: { strokeWidth: 0, radius: 12 },
@@ -1066,7 +1086,7 @@ export function StudioEditor({
         element={selectedElement}
         editable={editable}
         revision={revision}
-        role={initialAccess.role}
+        accessRole={initialAccess.role}
         onUpdateElement={updateElement}
         onUpdateNotes={(notes) =>
           updateSelectedSlide((slide) => ({ ...slide, notes, updatedAt: now() }))
@@ -1149,22 +1169,24 @@ function NumberField({
   );
 }
 
-function Inspector({
+export function Inspector({
   slide,
   element,
   editable,
   revision,
-  role,
+  accessRole,
   onUpdateElement,
   onUpdateNotes,
+  showNotes = true,
 }: {
   slide: DeckSlide | null;
   element: SlideElement | null;
   editable: boolean;
   revision: number;
-  role: DeckAccess['role'];
+  accessRole: DeckAccess['role'];
   onUpdateElement: (elementId: string, update: (element: SlideElement) => SlideElement) => void;
   onUpdateNotes: (notes: string) => void;
+  showNotes?: boolean;
 }) {
   const update = (patch: Partial<SlideElement>) => {
     if (element)
@@ -1189,6 +1211,160 @@ function Inspector({
                   onChange={(event) =>
                     update({ text: event.target.value } as Partial<SlideElement>)
                   }
+                />
+              </label>
+            )}
+            {element.type === 'richText' && (
+              <label className="inspector-field">
+                <span>Content</span>
+                <textarea
+                  value={element.paragraphs
+                    .map((paragraph) => paragraph.runs.map((run) => run.text).join(''))
+                    .join('\n')}
+                  readOnly={!editable}
+                  onChange={(event) =>
+                    update({
+                      paragraphs: event.target.value.split('\n').map((text, index) => ({
+                        id: `paragraph:${index + 1}`,
+                        runs: [{ id: `paragraph:${index + 1}:run:1`, text }],
+                      })),
+                    } as Partial<SlideElement>)
+                  }
+                />
+              </label>
+            )}
+            {element.type === 'list' && (
+              <label className="inspector-field">
+                <span>Items</span>
+                <textarea
+                  value={element.items.join('\n')}
+                  readOnly={!editable}
+                  onChange={(event) =>
+                    update({ items: event.target.value.split('\n') } as Partial<SlideElement>)
+                  }
+                />
+              </label>
+            )}
+            {element.type === 'metric' && (
+              <div className="inspector-grid">
+                <label className="inspector-field compact-field">
+                  <span>Value</span>
+                  <input
+                    value={element.value}
+                    readOnly={!editable}
+                    onChange={(event) =>
+                      update({ value: event.target.value } as Partial<SlideElement>)
+                    }
+                  />
+                </label>
+                <label className="inspector-field compact-field">
+                  <span>Label</span>
+                  <input
+                    value={element.label}
+                    readOnly={!editable}
+                    onChange={(event) =>
+                      update({ label: event.target.value } as Partial<SlideElement>)
+                    }
+                  />
+                </label>
+              </div>
+            )}
+            {element.type === 'image' && (
+              <>
+                <label className="inspector-field">
+                  <span>Image URL</span>
+                  <input
+                    value={element.src}
+                    readOnly={!editable}
+                    onChange={(event) =>
+                      update({ src: event.target.value } as Partial<SlideElement>)
+                    }
+                  />
+                </label>
+                <label className="inspector-field">
+                  <span>Alternative text</span>
+                  <input
+                    value={element.alt}
+                    readOnly={!editable}
+                    onChange={(event) =>
+                      update({ alt: event.target.value } as Partial<SlideElement>)
+                    }
+                  />
+                </label>
+              </>
+            )}
+            {element.type === 'shape' && (
+              <label className="inspector-field">
+                <span>Shape</span>
+                <select
+                  value={element.shape}
+                  disabled={!editable}
+                  onChange={(event) =>
+                    update({ shape: event.target.value } as Partial<SlideElement>)
+                  }
+                >
+                  <option value="rectangle">Rectangle</option>
+                  <option value="ellipse">Ellipse</option>
+                  <option value="pill">Pill</option>
+                  <option value="triangle">Triangle</option>
+                  <option value="diamond">Diamond</option>
+                </select>
+              </label>
+            )}
+            {element.type === 'chart' && (
+              <>
+                <label className="inspector-field">
+                  <span>Categories</span>
+                  <textarea
+                    value={element.categories.join('\n')}
+                    readOnly={!editable}
+                    onChange={(event) =>
+                      update({
+                        categories: event.target.value.split('\n').filter(Boolean),
+                      } as Partial<SlideElement>)
+                    }
+                  />
+                </label>
+                <label className="inspector-field">
+                  <span>Values</span>
+                  <input
+                    value={element.series[0]?.values.join(', ') ?? ''}
+                    readOnly={!editable}
+                    onChange={(event) => {
+                      const values = event.target.value.split(',').map((value) => {
+                        const number = Number(value.trim());
+                        return Number.isFinite(number) ? number : null;
+                      });
+                      update({
+                        series: element.series.map((series, index) =>
+                          index === 0 ? { ...series, values } : series,
+                        ),
+                      } as Partial<SlideElement>);
+                    }}
+                  />
+                </label>
+              </>
+            )}
+            {element.type === 'table' && (
+              <label className="inspector-field">
+                <span>Cells (tab-separated)</span>
+                <textarea
+                  value={element.rows
+                    .map((row) => row.map((cell) => cell.value).join('\t'))
+                    .join('\n')}
+                  readOnly={!editable}
+                  onChange={(event) => {
+                    const rows = event.target.value
+                      .split('\n')
+                      .map((row) =>
+                        row.split('\t').map((value) => ({ value, colspan: 1, rowspan: 1 })),
+                      );
+                    const columnCount = Math.max(1, ...rows.map((row) => row.length));
+                    update({
+                      rows,
+                      columns: Array.from({ length: columnCount }, () => 1),
+                    } as Partial<SlideElement>);
+                  }}
                 />
               </label>
             )}
@@ -1271,7 +1447,6 @@ function Inspector({
                 <label className="inspector-field compact-field">
                   <span>Fill</span>
                   <input
-                    type="color"
                     value={box.style.fill ?? '#ffffff'}
                     onChange={(event) =>
                       update({
@@ -1332,7 +1507,7 @@ function Inspector({
           <dl>
             <div>
               <dt>Access</dt>
-              <dd>{role}</dd>
+              <dd>{accessRole}</dd>
             </div>
             <div>
               <dt>Slides</dt>
@@ -1345,7 +1520,7 @@ function Inspector({
           </dl>
         )}
       </div>
-      {slide && (
+      {slide && showNotes && (
         <label className="notes-field">
           <span>Speaker notes</span>
           <textarea

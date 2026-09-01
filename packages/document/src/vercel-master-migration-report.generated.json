@@ -1,0 +1,442 @@
+{
+  "source": "apps/demo/slides/vercel-starter/index.tsx",
+  "schemaVersion": 1,
+  "masterCount": 62,
+  "unsupportedMasterCount": 0,
+  "masters": [
+    {
+      "position": 0,
+      "slug": "cover",
+      "elementCount": 8,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 1,
+      "slug": "product-cover",
+      "elementCount": 10,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 2,
+      "slug": "agenda",
+      "elementCount": 19,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 3,
+      "slug": "section-divider",
+      "elementCount": 7,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 4,
+      "slug": "statement",
+      "elementCount": 6,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 5,
+      "slug": "title-and-body",
+      "elementCount": 9,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 6,
+      "slug": "bullets",
+      "elementCount": 14,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 7,
+      "slug": "two-columns",
+      "elementCount": 15,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 8,
+      "slug": "three-pillars",
+      "elementCount": 19,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 9,
+      "slug": "quote",
+      "elementCount": 8,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 10,
+      "slug": "big-number",
+      "elementCount": 17,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 11,
+      "slug": "metrics",
+      "elementCount": 19,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 12,
+      "slug": "comparison",
+      "elementCount": 15,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 13,
+      "slug": "timeline",
+      "elementCount": 20,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 14,
+      "slug": "process",
+      "elementCount": 23,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 15,
+      "slug": "chart",
+      "elementCount": 20,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 16,
+      "slug": "data-table",
+      "elementCount": 31,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 17,
+      "slug": "code",
+      "elementCount": 20,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 18,
+      "slug": "screenshot",
+      "elementCount": 13,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 19,
+      "slug": "split-image",
+      "elementCount": 14,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 20,
+      "slug": "full-bleed-image",
+      "elementCount": 7,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 21,
+      "slug": "architecture",
+      "elementCount": 26,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 22,
+      "slug": "roadmap",
+      "elementCount": 24,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 23,
+      "slug": "launch-reveal",
+      "elementCount": 9,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 24,
+      "slug": "session-title",
+      "elementCount": 10,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 25,
+      "slug": "team-lineup",
+      "elementCount": 28,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 26,
+      "slug": "customer-story",
+      "elementCount": 14,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 27,
+      "slug": "data-story",
+      "elementCount": 11,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 28,
+      "slug": "decision",
+      "elementCount": 16,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 29,
+      "slug": "principles",
+      "elementCount": 23,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 30,
+      "slug": "risk-register",
+      "elementCount": 18,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 31,
+      "slug": "option-spectrum",
+      "elementCount": 18,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 32,
+      "slug": "progress-rail",
+      "elementCount": 24,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 33,
+      "slug": "photo-quote",
+      "elementCount": 9,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 34,
+      "slug": "team-update",
+      "elementCount": 20,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 35,
+      "slug": "executive-cover",
+      "elementCount": 28,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 36,
+      "slug": "visual-agenda",
+      "elementCount": 27,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 37,
+      "slug": "presenter-roster",
+      "elementCount": 80,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 38,
+      "slug": "partnership-stream",
+      "elementCount": 24,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 39,
+      "slug": "workstream-matrix",
+      "elementCount": 42,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 40,
+      "slug": "partnership-history",
+      "elementCount": 38,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 41,
+      "slug": "status-triptych",
+      "elementCount": 34,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 42,
+      "slug": "proof-collage",
+      "elementCount": 28,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 43,
+      "slug": "metric-horizon",
+      "elementCount": 19,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 44,
+      "slug": "value-bridge",
+      "elementCount": 32,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 45,
+      "slug": "six-step-grid",
+      "elementCount": 37,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 46,
+      "slug": "case-study-evidence",
+      "elementCount": 33,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 47,
+      "slug": "dual-trend",
+      "elementCount": 19,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 48,
+      "slug": "agent-pipeline",
+      "elementCount": 60,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 49,
+      "slug": "risk-landscape",
+      "elementCount": 32,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 50,
+      "slug": "use-case-gallery",
+      "elementCount": 31,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 51,
+      "slug": "binary-model",
+      "elementCount": 16,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 52,
+      "slug": "product-demo",
+      "elementCount": 14,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 53,
+      "slug": "agent-primitives",
+      "elementCount": 38,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 54,
+      "slug": "partner-interstitial",
+      "elementCount": 17,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 55,
+      "slug": "product-ecosystem",
+      "elementCount": 14,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 56,
+      "slug": "wordmark-gallery",
+      "elementCount": 43,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 57,
+      "slug": "icon-gallery",
+      "elementCount": 43,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 58,
+      "slug": "pixel-gallery",
+      "elementCount": 55,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 59,
+      "slug": "lil-pix-gallery",
+      "elementCount": 12,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 60,
+      "slug": "questions",
+      "elementCount": 7,
+      "unsupported": [],
+      "skipped": []
+    },
+    {
+      "position": 61,
+      "slug": "closing",
+      "elementCount": 3,
+      "unsupported": [],
+      "skipped": []
+    }
+  ]
+}

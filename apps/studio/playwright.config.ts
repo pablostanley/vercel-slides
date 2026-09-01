@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const memoryNamespace = `playwright-${process.pid}`;
+
 export default defineConfig({
   testDir: './e2e',
   timeout: 30_000,
@@ -12,7 +14,7 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
   webServer: {
-    command: 'STUDIO_TEST_AUTH=1 STUDIO_STORAGE=memory STUDIO_MEMORY_NAMESPACE=playwright pnpm dev',
+    command: `STUDIO_TEST_AUTH=1 STUDIO_STORAGE=memory STUDIO_MEMORY_NAMESPACE=${memoryNamespace} pnpm dev`,
     url: 'http://127.0.0.1:3100',
     reuseExistingServer: false,
     timeout: 120_000,

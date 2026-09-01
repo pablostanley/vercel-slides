@@ -121,6 +121,8 @@ export function TemplatePicker({
                 onDoubleClick={() => onInsert(master)}
                 role="option"
                 aria-selected={active?.version.id === master.version.id}
+                aria-label={`${master.title}, ${master.category}`}
+                data-master-slug={master.slug}
               >
                 <span className="template-thumbnail">
                   <SlideRenderer document={master.version.document} />

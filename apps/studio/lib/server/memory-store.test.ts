@@ -23,6 +23,14 @@ const collaborator = {
   avatarUrl: null,
   role: 'user' as const,
 };
+const admin = {
+  id: 'user:admin',
+  email: 'admin@vercel.com',
+  name: 'Admin',
+  username: 'admin',
+  avatarUrl: null,
+  role: 'admin' as const,
+};
 
 beforeEach(() => resetMemoryStore());
 
@@ -199,5 +207,89 @@ describe('deck authorization and revisions', () => {
     });
     expect(restored.slides).toHaveLength(0);
     expect(restored.deck.revision).toBe(2);
+  });
+
+  it('enforces admin access and publishes immutable master versions', async () => {
+    const store = new MemoryStudioStore();
+    await store.ensureUser(owner);
+    await store.ensureUser(admin);
+    await expect(store.listAdminMasters(owner.id, 'vercel')).rejects.toMatchObject({
+      code: 'forbidden',
+    });
+
+    const source = (await store.listAdminMasters(admin.id, 'vercel'))[0];
+    const published = source.versions.find(
+      (version) => version.id === source.currentPublishedVersionId,
+    );
+    expect(published).toBeDefined();
+    if (!published) return;
+    const deck = await store.createDeck({
+      id: 'deck:published-isolation',
+      ownerId: owner.id,
+      title: 'Published isolation',
+      templateLibraryId: 'library:vercel',
+      slides: [
+        {
+          id: 'slide:published-copy',
+          document: cloneMasterDocument(
+            published.document,
+            'slide:published-copy',
+            (id) => `copy:${id}`,
+          ),
+          notes: '',
+          masterSlideId: source.id,
+          masterVersionId: published.id,
+        },
+      ],
+    });
+    const before = await store.getDeckAccess(owner.id, deck.id);
+    const draft = await store.createMasterDraft({
+      actorId: admin.id,
+      masterId: source.id,
+      versionId: 'master-version:test:draft',
+      sourceVersionId: published.id,
+    });
+    const editedDocument = {
+      ...draft.document,
+      elements: draft.document.elements.map((element, index) =>
+        index === 0 ? { ...element, x: element.x + 40 } : element,
+      ),
+    };
+    const updatedDraft = await store.updateMasterDraft({
+      actorId: admin.id,
+      masterId: source.id,
+      versionId: draft.id,
+      expectedRevision: 0,
+      document: editedDocument,
+    });
+    await expect(
+      store.updateMasterDraft({
+        actorId: admin.id,
+        masterId: source.id,
+        versionId: draft.id,
+        expectedRevision: 0,
+        document: editedDocument,
+      }),
+    ).rejects.toMatchObject({ code: 'conflict', currentRevision: 1 });
+    const afterPublish = await store.publishMaster({
+      actorId: admin.id,
+      masterId: source.id,
+      versionId: draft.id,
+      expectedRevision: updatedDraft.revision,
+    });
+    expect(afterPublish.currentPublishedVersionId).toBe(draft.id);
+    const current = await store.getPublishedMaster(owner.id, draft.id);
+    expect(current?.version.document.elements[0].x).toBe(published.document.elements[0].x + 40);
+    const after = await store.getDeckAccess(owner.id, deck.id);
+    expect(after?.slides[0].document).toEqual(before?.slides[0].document);
+    await expect(
+      store.updateMasterDraft({
+        actorId: admin.id,
+        masterId: source.id,
+        versionId: draft.id,
+        expectedRevision: updatedDraft.revision + 1,
+        document: editedDocument,
+      }),
+    ).rejects.toMatchObject({ code: 'invalid' });
   });
 });
