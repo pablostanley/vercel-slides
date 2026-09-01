@@ -15,7 +15,7 @@
     "lint:fix": "biome lint --write .",
     "check": "biome check .",
     "check:fix": "biome check --write .",
-    "test": "vitest run",
+    "test": "vitest run && pnpm --filter studio test",
     "test:watch": "vitest",
     "test:e2e": "pnpm --filter @open-slide/core test:e2e",
     "core": "pnpm --filter @open-slide/core",
