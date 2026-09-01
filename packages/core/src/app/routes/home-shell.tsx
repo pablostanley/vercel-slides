@@ -1,7 +1,7 @@
-import { Menu } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
+import { IconMenu } from '@/components/geist-icons';
 import { LanguageToggle } from '@/components/language-toggle';
 import { ThemeToggle } from '@/components/theme-toggle';
 import {
@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { VercelMark } from '@/components/vercel-mark';
 import { GLOBAL_ASSET_SCOPE, useAssets } from '@/lib/assets';
 import { useFolders } from '@/lib/folders';
 import { rememberHomeLocation } from '@/lib/last-home-location';
@@ -145,7 +146,7 @@ export function HomeShell() {
   };
 
   return (
-    <div className="flex h-dvh overflow-hidden bg-sidebar text-foreground">
+    <div className="flex h-dvh overflow-hidden bg-background-200 text-foreground">
       <div className="hidden md:block">
         <Sidebar
           folders={manifest.folders}
@@ -182,9 +183,12 @@ export function HomeShell() {
       </div>
 
       <div className="relative flex min-w-0 flex-1 flex-col md:py-2 md:pr-2">
-        <div className="relative flex min-w-0 flex-1 flex-col overflow-y-auto bg-background md:rounded-[10px] md:shadow-edge md:ring-1 md:ring-foreground/[0.06]">
-          <div className="flex items-center justify-between border-b border-hairline bg-sidebar px-4 py-3 md:hidden">
-            <h1 className="font-heading text-lg font-bold tracking-tight">{t.home.appTitle}</h1>
+        <div className="relative flex min-w-0 flex-1 flex-col overflow-y-auto bg-background-100 md:rounded-lg md:shadow-border">
+          <div className="flex h-12 items-center justify-between border-b border-gray-alpha-400 bg-background-100 px-4 md:hidden">
+            <div className="flex items-center gap-2">
+              <VercelMark className="size-4" />
+              <h1 className="text-label-14 font-semibold">{t.home.appTitle}</h1>
+            </div>
             <div className="-mr-1.5 flex items-center gap-0.5">
               <CommandMenuTrigger onClick={openCommandMenu} />
               <LanguageToggle />
@@ -197,7 +201,7 @@ export function HomeShell() {
                       aria-label={t.home.menu}
                       className="flex size-8 items-center justify-center rounded-[6px] text-muted-foreground outline-none transition-[background-color,color,scale] duration-100 hover:bg-muted hover:text-foreground active:scale-95 focus-visible:ring-2 focus-visible:ring-ring/30 aria-expanded:bg-muted aria-expanded:text-foreground"
                     >
-                      <Menu className="size-4" />
+                      <IconMenu className="size-4" />
                     </button>
                   }
                 />
@@ -241,7 +245,7 @@ export function HomeShell() {
             className={cn(
               isAssetsRoute
                 ? 'flex min-h-0 flex-1 flex-col'
-                : 'mx-auto w-full max-w-[1180px] px-5 py-8 md:px-10 md:py-12',
+                : 'mx-auto w-full max-w-[1400px] px-5 py-8 md:px-8 md:py-10',
             )}
           >
             <Outlet context={ctx} />

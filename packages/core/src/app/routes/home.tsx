@@ -132,14 +132,17 @@ export function Home() {
 
   return (
     <>
-      <header className="mb-6 md:mb-8">
-        <div className="flex flex-wrap items-center gap-2.5">
+      <header className="mb-6">
+        <div className="flex flex-wrap items-center gap-2">
           {selectedFolder ? (
             <FolderIconChip icon={selectedFolder.icon} className="size-5 text-[16px]" />
           ) : (
             <SystemViewIcon kind={isAll ? 'all' : 'draft'} className="text-muted-foreground" />
           )}
-          <h1 className="font-heading text-[19px] font-semibold leading-none tracking-[-0.015em] md:text-[21px]">
+          <h1
+            className="text-heading-20 font-semibold md:text-heading-24"
+            style={{ letterSpacing: 0 }}
+          >
             {title}
           </h1>
           <DropdownMenu>
@@ -204,7 +207,7 @@ export function Home() {
       ) : filteredSlides.length === 0 ? (
         <NoResultsState query={query} onClear={() => setQuery('')} />
       ) : (
-        <ul className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-x-6 gap-y-9 md:grid-cols-[repeat(auto-fill,minmax(300px,1fr))]">
+        <ul className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-x-6 gap-y-8 md:grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
           {sortedSlides.map((id, i) => (
             <li
               key={id}
@@ -255,7 +258,7 @@ function SearchInput({ value, onChange }: { value: string; onChange: (value: str
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={t.home.searchPlaceholder}
-        className="h-8 w-full rounded-[6px] border border-border bg-background pl-8 pr-7 text-[12.5px] outline-none placeholder:text-muted-foreground/70 focus-visible:border-foreground/40 focus-visible:ring-2 focus-visible:ring-ring/30"
+        className="h-8 w-full rounded-md border border-gray-alpha-400 bg-background-100 pr-7 pl-8 text-label-13 outline-none placeholder:text-gray-800 focus-visible:border-blue-700 focus-visible:ring-2 focus-visible:ring-blue-700/20"
       />
       {value && (
         <button
@@ -292,7 +295,7 @@ function SortControl({ value, onChange }: { value: SortKey; onChange: (next: Sor
           <button
             type="button"
             aria-label={`${t.home.sortLabel}: ${labels[value]}`}
-            className="flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-[6px] border border-border bg-background pl-2 pr-1.5 text-[12.5px] font-medium text-foreground outline-none transition-[background-color,translate] duration-100 hover:bg-muted active:translate-y-px focus-visible:border-foreground/40 focus-visible:ring-2 focus-visible:ring-ring/30"
+            className="flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md border border-gray-alpha-400 bg-background-100 pr-1.5 pl-2 text-label-13 font-medium text-gray-1000 outline-none transition-[background-color,translate] duration-100 hover:bg-gray-alpha-100 active:translate-y-px focus-visible:border-blue-700 focus-visible:ring-2 focus-visible:ring-blue-700/20"
           >
             <FieldIcon k={value} className="size-3.5 text-muted-foreground" />
             <span>{labels[value]}</span>
@@ -504,10 +507,10 @@ function SlideCard({
       >
         <Link
           to={`/s/${id}`}
-          className="block rounded-[6px] outline-none focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          className="block rounded-md outline-none focus-visible:ring-2 focus-visible:ring-blue-700 focus-visible:ring-offset-2 focus-visible:ring-offset-background-100"
         >
           {/* Slide thumb — tight border, grey baseboard, no shadcn rounded-xl */}
-          <div className="relative aspect-video overflow-hidden rounded-[6px] border border-hairline bg-card shadow-edge ring-1 ring-foreground/[0.04] group-hover:shadow-floating group-hover:ring-foreground/20 motion-safe:transition-[box-shadow,--tw-ring-color,scale] motion-safe:duration-200 group-active:scale-[0.99]">
+          <div className="relative aspect-video overflow-hidden rounded-md border border-gray-alpha-400 bg-background-100 shadow-border group-hover:border-gray-alpha-600 group-hover:shadow-lg motion-safe:transition-[border-color,box-shadow,transform] motion-safe:duration-200 group-hover:-translate-y-px group-active:translate-y-0">
             {FirstPage ? (
               <div className="h-full w-full">
                 <SlideCanvas flat freezeMotion design={slide?.design}>
@@ -525,9 +528,7 @@ function SlideCard({
         </Link>
         <div className="mt-3 flex items-center gap-2">
           <Link to={`/s/${id}`} className="min-w-0 flex-1 focus-visible:outline-none">
-            <h3 className="min-w-0 truncate font-heading text-[14px] font-medium tracking-tight">
-              {displayTitle}
-            </h3>
+            <h3 className="min-w-0 truncate text-label-14 font-medium">{displayTitle}</h3>
           </Link>
           {slide?.meta?.theme && (
             <Link

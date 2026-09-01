@@ -1,14 +1,12 @@
+import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { type ComponentType, useEffect, useRef, useState } from 'react';
 import {
-  FolderOpen,
-  LayoutGrid,
-  type LucideIcon,
-  MoreHorizontal,
-  Palette,
-  Pencil,
-  PenLine,
-  Trash2,
-} from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+  type GeistIconProps,
+  IconFolderOpen,
+  IconGridSquare,
+  IconPen,
+  IconPrismColor,
+} from '@/components/geist-icons';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,18 +42,18 @@ function useSlideDragActive() {
 
 export type SystemViewKind = 'all' | 'draft' | 'themes' | 'assets';
 
-const SYSTEM_VIEW_ICONS: Record<SystemViewKind, LucideIcon> = {
-  all: LayoutGrid,
-  draft: PenLine,
-  themes: Palette,
-  assets: FolderOpen,
+const SYSTEM_VIEW_ICONS: Record<SystemViewKind, ComponentType<GeistIconProps>> = {
+  all: IconGridSquare,
+  draft: IconPen,
+  themes: IconPrismColor,
+  assets: IconFolderOpen,
 };
 
 export function SystemViewIcon({ kind, className }: { kind: SystemViewKind; className?: string }) {
   const Icon = SYSTEM_VIEW_ICONS[kind];
   return (
     <span aria-hidden className={cn('flex size-5 shrink-0 items-center justify-center', className)}>
-      <Icon className="size-4" strokeWidth={1.75} />
+      <Icon className="size-4" />
     </span>
   );
 }

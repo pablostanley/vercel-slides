@@ -31,7 +31,7 @@ export const en: Locale = {
   },
 
   home: {
-    appTitle: 'open-slide',
+    appTitle: 'Vercel Slides',
     draft: 'Draft',
     duplicate: 'Duplicate',
     themes: 'Themes',

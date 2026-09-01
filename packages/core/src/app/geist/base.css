@@ -1,0 +1,833 @@
+:root,
+:host {
+  /*
+	 * Disables browser font-size overrides. Users should use their browser's
+	 * zoom functionality instead.
+	 * See: https://www.w3.org/WAI/WCAG21/Techniques/general/G142
+	 */
+  font-size: 16px;
+
+  /* Spacing variables */
+  --geist-space: 4px;
+  --geist-space-2x: 8px;
+  --geist-space-3x: 12px;
+  --geist-space-4x: 16px;
+  --geist-space-6x: 24px;
+  --geist-space-8x: 32px;
+  --geist-space-10x: 40px;
+  --geist-space-16x: 64px;
+  --geist-space-24x: 96px;
+  --geist-space-32x: 128px;
+  --geist-space-48x: 192px;
+  --geist-space-64x: 256px;
+
+  --geist-space-small: 32px;
+  --geist-space-medium: 36px;
+  --geist-space-large: 40px;
+
+  --geist-space-gap: 24px;
+  --geist-space-gap-half: 12px;
+  --geist-space-gap-quarter: var(--geist-space-2x);
+
+  --geist-gap: var(--geist-space-gap);
+  --geist-gap-half: var(--geist-space-gap-half);
+  --geist-gap-quarter: var(--geist-space-gap-quarter);
+  --geist-gap-double: var(--geist-space-large);
+  --geist-gap-section: var(--geist-space-small);
+
+  /* Negative values */
+  --geist-space-negative: -4px;
+  --geist-space-2x-negative: -8px;
+  --geist-space-4x-negative: -16px;
+  --geist-space-8x-negative: -32px;
+  --geist-space-16x-negative: -64px;
+  --geist-space-24x-negative: -96px;
+  --geist-space-32x-negative: -128px;
+  --geist-space-48x-negative: -192px;
+  --geist-space-64x-negative: -256px;
+
+  --geist-space-small-negative: -32px;
+  --geist-space-medium-negative: -36px;
+  --geist-space-large-negative: -40px;
+
+  --geist-space-gap-negative: -24px;
+  --geist-space-gap-half-negative: -12px;
+  --geist-space-gap-quarter-negative: var(--geist-space-2x-negative);
+
+  --geist-gap-negative: var(--geist-space-gap-negative);
+  --geist-gap-half-negative: var(--geist-space-gap-half-negative);
+  --geist-gap-quarter-negative: var(--geist-space-gap-quarter-negative);
+  --geist-gap-double-negative: var(--geist-space-large-negative);
+
+  /* Page values */
+  --geist-page-margin: var(--geist-space-gap);
+  --geist-page-width: 1200px;
+  --geist-page-width-with-margin: calc(
+    var(--geist-page-width) + calc(2 * var(--geist-page-margin))
+  );
+  --ds-page-width: 1400px;
+  --ds-page-width-with-margin: calc(
+    var(--ds-page-width) + calc(2 * var(--geist-page-margin))
+  );
+
+  /* Appearance */
+  --geist-radius: 6px;
+  --geist-marketing-radius: 8px;
+
+  --geist-text-gradient: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.8) 0%,
+    #000000 100%
+  );
+
+  /* --font-sans is applied via next/font (core/provider/geist-provider.ts) in GeistProvider. */
+  --font-sans-fallback:
+    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  /* --font-mono is applied via next/font (core/provider/geist-provider.ts) in GeistProvider. */
+  --font-mono-fallback:
+    Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
+    Bitstream Vera Sans Mono, Courier New, monospace;
+
+  /* Header */
+  --header-height: 64px;
+  --header-zindex: 75; /* higher than z-50 while maintaining stack order with other geist components */
+  --header-border-bottom: 0 1px 0 0 rgba(0, 0, 0, 0.1);
+
+  /* Overlay stacking scale — single source of truth for the z-index ladder of
+     layered surfaces. Order (low → high): header < drawer/sheet < modal <
+     menu/popover < toast < tooltip. Menu and tooltip deliberately sit above both
+     modal and drawer so floating UI (Select, Combobox, Menu) opened from either
+     surface renders on top. Upper-layer magnitudes are kept at their historical
+     values to avoid disturbing app code that hardcodes z-index relative to them;
+     only drawer and modal move so the modal always stacks above the drawer. */
+  --ds-z-drawer: 200;
+  --ds-z-modal: 300;
+  --ds-z-menu: 2001;
+  --ds-z-toast: 5000;
+  --ds-z-tooltip: 99999;
+  --header-sub-menu-height: 46px;
+
+  --header-import-flow-background: hsla(0, 0%, 98%, 0.8);
+
+  /* Footer */
+  --footer-height: 79px;
+
+  /* Form sizing */
+  --geist-form-large-font: 1rem;
+  --geist-form-large-line-height: 1.5rem;
+  --geist-form-large-height: var(--geist-space-large);
+
+  --geist-form-small-font: 0.875rem;
+  --geist-form-small-line-height: 0.875rem;
+  --geist-form-small-height: var(--geist-space-small);
+
+  --geist-form-font: 0.875rem;
+  --geist-form-line-height: 1.25rem;
+  --geist-form-height: var(--geist-space-medium);
+
+  /* Shadows */
+  --ds-shadow-background-border: 0 0 0 1px var(--ds-background-200);
+
+  /* Base borders without background border */
+  --ds-shadow-border-base: 0 0 0 1px rgba(0, 0, 0, 0.08);
+  --ds-shadow-border-inset: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+
+  /* Border with background border for simple cases */
+  --ds-shadow-border:
+    var(--ds-shadow-border-base), var(--ds-shadow-background-border);
+
+  --ds-shadow-2xs: 0px 1px 1px rgba(0, 0, 0, 0.04);
+
+  --ds-shadow-xs: 0px 1px 2px rgba(0, 0, 0, 0.04);
+
+  --ds-shadow-small: 0px 2px 2px rgba(0, 0, 0, 0.04);
+
+  --ds-shadow-border-small:
+    var(--ds-shadow-border-base), var(--ds-shadow-small),
+    var(--ds-shadow-background-border);
+
+  --ds-shadow-medium:
+    0px 2px 2px rgba(0, 0, 0, 0.04), 0px 8px 8px -8px rgba(0, 0, 0, 0.04);
+
+  --ds-shadow-border-medium:
+    var(--ds-shadow-border-base), var(--ds-shadow-medium),
+    var(--ds-shadow-background-border);
+
+  --ds-shadow-large:
+    0px 2px 2px rgba(0, 0, 0, 0.04), 0px 8px 16px -4px rgba(0, 0, 0, 0.04);
+
+  --ds-shadow-border-large:
+    var(--ds-shadow-border-base), var(--ds-shadow-large),
+    var(--ds-shadow-background-border);
+
+  /* Geist's shadow menu without borders variables */
+  --ds-shadow-xl:
+    0px 1px 1px rgba(0, 0, 0, 0.02), 0px 4px 8px -4px rgba(0, 0, 0, 0.04),
+    0px 16px 24px -8px rgba(0, 0, 0, 0.06);
+
+  /* Geist's shadow modal / full-screen without borders variables */
+  --ds-shadow-2xl:
+    0px 1px 1px rgba(0, 0, 0, 0.02), 0px 8px 16px -4px rgba(0, 0, 0, 0.04),
+    0px 24px 32px -8px rgba(0, 0, 0, 0.06);
+
+  --ds-shadow-tooltip:
+    var(--ds-shadow-border-base), 0px 1px 1px rgba(0, 0, 0, 0.02),
+    0px 4px 8px rgba(0, 0, 0, 0.04), var(--ds-shadow-background-border);
+
+  --ds-shadow-menu:
+    var(--ds-shadow-border-base), 0px 1px 1px rgba(0, 0, 0, 0.02),
+    0px 4px 8px -4px rgba(0, 0, 0, 0.04),
+    0px 16px 24px -8px rgba(0, 0, 0, 0.06), var(--ds-shadow-background-border);
+
+  --ds-shadow-modal:
+    var(--ds-shadow-border-base), 0px 1px 1px rgba(0, 0, 0, 0.02),
+    0px 8px 16px -4px rgba(0, 0, 0, 0.04),
+    0px 24px 32px -8px rgba(0, 0, 0, 0.06), var(--ds-shadow-background-border);
+
+  --ds-shadow-modal-elevated:
+    0px 0px 0px 1px rgba(0, 0, 0, 0.08),
+    0px 32px 72px -12px rgba(0, 0, 0, 0.06),
+    0px 8px 32px -12px rgba(0, 0, 0, 0.08),
+    0px 8px 24px -12px rgba(0, 0, 0, 0.12);
+
+  --ds-shadow-fullscreen:
+    var(--ds-shadow-border-base), 0px 1px 1px rgba(0, 0, 0, 0.02),
+    0px 8px 16px -4px rgba(0, 0, 0, 0.04),
+    0px 24px 32px -8px rgba(0, 0, 0, 0.06), var(--ds-shadow-background-border);
+
+  --ds-focus-ring:
+    0 0 0 2px var(--ds-background-100), 0 0 0 4px var(--ds-focus-color);
+  --ds-focus-ring-outline: 2px solid var(--ds-focus-color);
+
+  /* Overlay */
+  --ds-overlay-backdrop-color: var(--ds-gray-100);
+  --ds-overlay-backdrop-opacity: 0.8;
+
+  /* Motion */
+  --ds-motion-timing-swift: cubic-bezier(0.175, 0.885, 0.32, 1.1);
+
+  --ds-motion-overlay-scale: 0.96;
+  --ds-motion-overlay-timing: var(--ds-motion-timing-swift);
+  --ds-motion-overlay-duration: 300ms;
+
+  --ds-motion-popover-timing: var(--ds-motion-timing-swift);
+  --ds-motion-popover-duration: 200ms;
+
+  /* Controls */
+  --ds-size-small: var(--geist-space-small);
+  --ds-size-medium: var(--geist-space-medium);
+  --ds-size-large: var(--geist-space-large);
+
+  --ds-control-decoration-size: 14px;
+
+  --ds-popover-padding: 6px;
+  --ds-popover-row-height: var(--geist-space-medium);
+  --ds-popover-row-radius: 6px;
+  --ds-popover-row-padding: 0 8px;
+}
+
+html {
+  touch-action: manipulation;
+  font-feature-settings:
+    'rlig' 1,
+    'calt' 0,
+    'ss11' 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-synthesis: none;
+
+  @supports (font-synthesis-weight: none) {
+    font-synthesis: initial;
+    font-synthesis-weight: none;
+  }
+}
+
+code {
+  font-family: var(--font-mono);
+}
+
+/* Helper classes */
+a.geist-reset {
+  text-decoration: none;
+  color: inherit;
+}
+
+button.geist-reset {
+  border: unset;
+  background: unset;
+  padding: unset;
+  margin: unset;
+  font: unset;
+  text-align: unset;
+  appearance: unset;
+}
+
+ul.geist-reset {
+  padding: unset;
+  margin: unset;
+  list-style-type: unset;
+}
+
+hr.geist-hr-reset {
+  margin: 0;
+  border: none;
+  border-bottom: 1px solid var(--accents-2);
+  margin-top: -1px;
+}
+
+.geist-no-outline {
+  outline: none;
+}
+
+.geist-kb-outline:focus:not(.focus-visible) {
+  outline: none;
+}
+
+.geist-no-events {
+  pointer-events: none;
+}
+
+.offset:before {
+  display: block;
+  content: ' ';
+  height: 75px;
+  margin-top: -75px;
+  visibility: hidden;
+}
+
+.geist-visually-hidden {
+  position: absolute;
+  height: 1px;
+  width: 1px;
+  top: -1000px;
+  left: -1000px;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  visibility: hidden;
+}
+
+.geist-ellipsis {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  word-wrap: normal;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.breadcrumb-link {
+  display: inline-block;
+  overflow-x: clip;
+  padding-left: 1px;
+  overflow-y: visible;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  word-wrap: normal;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.geist-text-no-margin > *:first-child {
+  margin-top: 0;
+}
+
+.geist-text-no-margin > *:last-child {
+  margin-bottom: 0;
+}
+
+.geist-overflow-scroll {
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.geist-overflow-scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.geist-overflow-scroll-y {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.geist-spacer {
+  display: block;
+  width: 1px;
+  height: 1px;
+  min-width: 1px;
+  min-height: 1px;
+  margin-left: calc(24px - 1px);
+  margin-top: calc(24px - 1px);
+  user-select: none;
+
+  &.inline {
+    display: inline-block;
+    margin-top: 0;
+  }
+  &.padding {
+    margin: 0 !important;
+  }
+  &.expand {
+    flex: 1;
+  }
+}
+
+.geist-hover-dim {
+  transition: opacity 0.15s ease;
+}
+
+.geist-hover-dim:hover,
+.geist-hover-dim:focus,
+.geist-hover-dim:active {
+  opacity: 0.7;
+}
+
+.geist-dotted {
+  background-image:
+    radial-gradient(var(--accents-2) 1px, transparent 1px),
+    radial-gradient(var(--accents-2) 1px, transparent 1px);
+  background-position:
+    0 0,
+    25px 25px;
+  background-size: 50px 50px;
+}
+
+/* Shadow that has hover effect on dark theme too */
+.geist-shadow {
+  box-shadow: var(--shadow-small);
+  transition: box-shadow 0.2s ease;
+}
+
+.geist-shadow:hover,
+.geist-shadow:focus-within {
+  box-shadow: var(--shadow-hover);
+}
+
+a.geist-secondary-link {
+  line-height: normal;
+  padding-bottom: 1px;
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--accents-3) 0%,
+    var(--accents-3) 50%,
+    transparent 50%,
+    transparent 100%
+  );
+  background-position: left bottom;
+  background-repeat: repeat-x;
+  background-size: 1ch 1px;
+  transition: color 0.15s ease;
+}
+
+a.geist-secondary-link:hover {
+  color: var(--accents-4);
+}
+
+.geist-dim-link {
+  color: var(--accents-5) !important;
+  transition: color 0.15s ease;
+}
+
+.geist-dim-link:hover,
+.geist-dim-link:focus,
+.geist-dim-link:active {
+  color: var(--geist-foreground) !important;
+}
+
+.geist-no-scrollbar {
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Clamp to a single line */
+.geist-clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+}
+
+/* Tabular Numbers */
+.geist-tabular-nums {
+  font-feature-settings: 'tnum';
+}
+
+.geist-show-on-dark-theme {
+  display: none;
+}
+
+.dark-theme .geist-show-on-dark-theme {
+  display: block;
+}
+
+.geist-show-on-light-theme {
+  display: block;
+}
+
+.dark-theme .geist-show-on-light-theme {
+  display: none;
+}
+
+.geist-hide {
+  display: none;
+}
+
+.geist-grabbing {
+  cursor: grabbing;
+
+  * {
+    user-select: none;
+    pointer-events: none;
+    -webkit-user-select: none;
+  }
+}
+
+/* Media Queries */
+@media screen and (min-width: 601px) {
+  .geist-show-on-mobile {
+    display: none !important;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  :root,
+  :host {
+    --header-height: 64px;
+  }
+
+  .geist-center-on-mobile {
+    text-align: center;
+  }
+  .geist-hide-on-mobile {
+    display: none !important;
+  }
+  .geist-overflow-reset-mobile {
+    overflow: initial !important;
+    -webkit-overflow-scrolling: initial !important;
+  }
+}
+
+@media screen and (min-width: 961px) {
+  .geist-show-on-tablet,
+  .geist-hide-on-desktop {
+    display: none !important;
+  }
+}
+
+@media screen and (max-width: 960px) {
+  .geist-hide-on-tablet,
+  .geist-show-on-desktop {
+    display: none !important;
+  }
+
+  .geist-show-on-tablet,
+  .geist-hide-on-desktop {
+    display: block;
+  }
+}
+
+/* Light Mode */
+/* Revert Overrides */
+:root,
+:host,
+.dark .invert-theme,
+.dark-theme .invert-theme,
+.geist-disabled .geist-disabled-skip {
+  --geist-success-lighter: #d3e5ff;
+  --geist-success-light: #3291ff;
+  --geist-success: #0070f3;
+  --geist-success-dark: #0761d1;
+
+  --geist-error-lighter: #f7d4d6;
+  --geist-error-light: #ff1a1a;
+  --geist-error: #ee0000;
+  --geist-error-dark: #c50000;
+
+  --geist-warning-lighter: #ffefcf;
+  --geist-warning-light: #f7b955;
+  --geist-warning: #f5a623;
+  --geist-warning-dark: #ab570a;
+
+  --geist-violet-lighter: #d8ccf1;
+  --geist-violet-light: #8a63d2;
+  --geist-violet: #7928ca;
+  --geist-violet-dark: #4c2889;
+  --geist-violet-background: #fff;
+  --geist-violet-background-secondary: #291c3a;
+  --geist-violet-background-tertiary: #eae5f4;
+  --geist-background-rgb: 255, 255, 255;
+  --geist-foreground-rgb: 0, 0, 0;
+  --geist-console-header: #efe7ed;
+  --geist-console-purple: #7928ca;
+  --geist-console-text-color-default: var(--geist-foreground);
+  --geist-console-text-color-blue: #0070f3;
+  --geist-console-text-color-pink: #eb367f;
+  --geist-console-text-color-purple: #7928ca;
+
+  --geist-cyan-lighter: #aaffec;
+  --geist-cyan-light: #79ffe1;
+  --geist-cyan: #50e3c2;
+  --geist-cyan-dark: #29bc9b;
+
+  --geist-highlight-purple: #f81ce5;
+  --geist-highlight-magenta: #eb367f;
+  --geist-highlight-pink: #ff0080;
+  --geist-highlight-yellow: #fff500;
+
+  --geist-foreground: #000;
+  --geist-background: #fff;
+  /* New and KEEP */
+  --geist-selection: var(--ds-gray-1000);
+  --geist-selection-text-color: var(--ds-gray-100);
+
+  --accents-1: #fafafa;
+  --accents-2: #eaeaea;
+  --accents-3: #999999;
+  --accents-4: #888888;
+  --accents-5: #666666;
+  --accents-6: #444444;
+  --accents-7: #333333;
+  --accents-8: #111111;
+
+  --geist-link-color: var(--ds-blue-700);
+  --geist-marketing-gray: #fafbfc;
+  --geist-code: var(--geist-foreground);
+
+  /* Secondary (Gray) */
+  --geist-secondary-lighter: var(--accents-2);
+  --geist-secondary-light: var(--accents-3);
+  --geist-secondary: var(--accents-5);
+  --geist-secondary-dark: var(--accents-7);
+
+  /* Shadows and other values */
+
+  --dropdown-box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.02);
+  --dropdown-triangle-stroke: #fff;
+
+  --scroller-start: rgba(255, 255, 255, 1);
+  --scroller-end: rgba(255, 255, 255, 0);
+
+  --shadow-smallest: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-extra-small: 0px 4px 8px rgba(0, 0, 0, 0.12);
+  --shadow-small: 0 5px 10px rgba(0, 0, 0, 0.12);
+  --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
+  --shadow-large: 0 30px 60px rgba(0, 0, 0, 0.12);
+  --shadow-hover: 0 30px 60px rgba(0, 0, 0, 0.12);
+
+  --shadow-sticky: 0 12px 10px -10px rgba(0, 0, 0, 0.12);
+
+  /* Web Vitals Colors */
+  --wv-green: #0cce6b;
+  --wv-orange: #ffa400;
+  --wv-red: #ff4e42;
+
+  /* Home Gradients */
+  --develop-start-gradient: #007cf0;
+  --develop-end-gradient: #00dfd8;
+  --develop-line-end: #019ae9;
+  --develop-text: #0a72ef;
+  --preview-start-gradient: #7928ca;
+  --preview-end-gradient: #ff0080;
+  --preview-line-end: #9a1fb8;
+  --preview-text: #de1d8d;
+  --ship-start-gradient: #ff4d4d;
+  --ship-end-gradient: #f9cb28;
+  --ship-line-end: #f9cb28;
+  --ship-text: #ff5b4f;
+
+  /* Media query to check if display supports P3 color space */
+  @media (color-gamut: p3) {
+    /* Feature query to check if browser supports oklch syntax. */
+    @supports (color: oklch(0% 0 0)) {
+      --develop-start-gradient: oklch(59.59% 0.24 255.09156059071347);
+      --develop-end-gradient: oklch(81.58% 0.189 190.74037768509325);
+      --develop-line-end: oklch(65.84% 0.203 242.5318349103755);
+      --develop-text: oklch(57.49% 0.249 257.84);
+      --preview-start-gradient: oklch(49.07% 0.272 300.45);
+      --preview-end-gradient: oklch(64.53% 0.292 2.47);
+      --preview-line-end: oklch(51.39% 0.267 318.36);
+      --preview-text: oklch(59.93% 0.274 352.55);
+      --ship-start-gradient: oklch(67.3% 0.266 25.039656026515278);
+      --ship-end-gradient: oklch(85.82% 0.201 91.19);
+      --ship-line-end: oklch(85.82% 0.201 91.19);
+      --ship-text: oklch(68.79% 0.25 27.76);
+    }
+  }
+
+  --next-icon-border: #000;
+}
+
+.geist-card-shadow {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* debugging */
+.debug .geist-container {
+  outline: 1px solid rgba(255, 0, 0, 0.3);
+}
+
+/* Transitions */
+.placeholder-fade-in-enter {
+  opacity: 0.01;
+}
+.placeholder-fade-in-enter.placeholder-fade-in-enter-active {
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+.placeholder-fade-in-leave {
+  opacity: 1;
+}
+.placeholder-fade-in-leave.placeholder-fade-in-leave-active {
+  opacity: 0.01;
+  transition: opacity 0.2s ease;
+}
+
+/* Animations */
+.geist-fade-in {
+  animation: soft-fade-in 0.3s cubic-bezier(0.455, 0.03, 0.515, 0.955) forwards;
+}
+@keyframes soft-fade-in {
+  from {
+    /* Don't begin with 0, it gives a feeling of flickering. */
+    opacity: 0.3;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.geist-disabled {
+  --geist-foreground: var(--ds-gray-900);
+  --ds-gray-1000: var(--ds-gray-900);
+  --accents-8: var(--accents-5);
+  --accents-7: var(--accents-5);
+  --accents-6: var(--accents-4);
+  --accents-5: var(--accents-4);
+  --accents-4: var(--accents-3);
+
+  [data-geist-button] {
+    --themed-border: var(--ds-gray-400) !important;
+    --themed-bg: var(--ds-gray-100) !important;
+    --themed-fg: var(--ds-gray-700) !important;
+  }
+
+  --geist-link-color: var(--geist-foreground);
+
+  --geist-success-lighter: var(--accents-3);
+  --geist-success-light: var(--accents-3);
+  --geist-success: var(--geist-foreground);
+  --geist-success-dark: var(--geist-foreground);
+
+  --geist-error-lighter: var(--accents-3);
+  --geist-error-light: var(--accents-3);
+  --geist-error: var(--geist-foreground);
+  --geist-error-dark: var(--geist-foreground);
+
+  --geist-warning-lighter: var(--accents-3);
+  --geist-warning-light: var(--accents-3);
+  --geist-warning: var(--geist-foreground);
+  --geist-warning-dark: var(--geist-foreground);
+
+  --geist-cyan-lighter: var(--accents-3);
+  --geist-cyan-light: var(--accents-3);
+  --geist-cyan: var(--geist-foreground);
+  --geist-cyan-dark: var(--geist-foreground);
+
+  --geist-violet-lighter: var(--accents-3);
+  --geist-violet-light: var(--accents-3);
+  --geist-violet: var(--geist-foreground);
+  --geist-violet-dark: var(--geist-foreground);
+
+  --geist-secondary-light: var(--accents-3);
+  --geist-secondary: var(--geist-foreground);
+  --geist-secondary-dark: var(--geist-foreground);
+
+  --geist-code: var(--geist-foreground);
+
+  .geist-disabled-wall {
+    cursor: not-allowed;
+    user-select: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+  }
+
+  /* Bypass `.geist-disabled-wall` */
+  .geist-disabled-skip {
+    position: relative;
+    z-index: 2;
+  }
+}
+
+.geist-disabled svg,
+.geist-disabled img {
+  filter: grayscale(1);
+}
+
+.geist-unselectable {
+  user-select: none;
+}
+
+/* Helpful for toggling elements based on the theme */
+.geist-hide-on-light {
+  display: none !important;
+}
+.geist-hide-on-dark {
+  display: initial !important;
+}
+.dark-theme {
+  .geist-hide-on-light {
+    display: initial !important;
+  }
+  .geist-hide-on-dark {
+    display: none !important;
+  }
+}
+
+/* A class to help keep an element size the given aspect ratio */
+.geist-ratio {
+  position: relative;
+}
+.geist-ratio::before {
+  float: left;
+  padding-top: var(--ratio);
+  content: '';
+}
+
+html {
+  --banner-height: 0px;
+  --vh100-offset: calc(var(--header-height) + var(--banner-height));
+}
+
+html.has-banner {
+  --banner-height: 40px;
+}
+
+html.banner-hidden {
+  --banner-height: 0px;
+}
+
+.geist-within-screen {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - var(--vh100-offset));
+}
+
+@layer base {
+  :where(.geist-soft-reset) :where(h1, h2, h3, h4, p, button, ul, li) {
+    margin: 0;
+    padding: 0;
+  }
+}
