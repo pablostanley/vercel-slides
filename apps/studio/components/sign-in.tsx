@@ -1,9 +1,13 @@
 import { Triangle } from 'lucide-react';
 
 export function SignIn({
+  accessError,
+  hostedAuthEnabled,
   localAuthEnabled,
   vercelAuthEnabled,
 }: {
+  accessError: boolean;
+  hostedAuthEnabled: boolean;
   localAuthEnabled: boolean;
   vercelAuthEnabled: boolean;
 }) {
@@ -22,6 +26,30 @@ export function SignIn({
           <p>Create from Vercel masters, edit together, and present from one durable workspace.</p>
         </div>
         <div className="signin-actions">
+          {hostedAuthEnabled ? (
+            <form className="signin-access-form" action="/api/auth/hosted-session" method="post">
+              <label htmlFor="studio-access-code">Studio access code</label>
+              <input
+                id="studio-access-code"
+                className="signin-access-input"
+                name="accessCode"
+                type="password"
+                autoComplete="current-password"
+                minLength={32}
+                required
+              />
+              <button className="button button-primary button-large" type="submit">
+                Open hosted studio
+              </button>
+              {accessError ? (
+                <p className="signin-error" role="alert">
+                  That access code did not match.
+                </p>
+              ) : (
+                <p className="signin-status">Protected by Vercel and a Studio access code.</p>
+              )}
+            </form>
+          ) : null}
           {localAuthEnabled ? (
             <form action="/api/auth/local-session" method="post">
               <button className="button button-primary button-large" type="submit">
@@ -31,16 +59,16 @@ export function SignIn({
           ) : null}
           {vercelAuthEnabled ? (
             <a
-              className={`button button-large ${localAuthEnabled ? 'button-secondary' : 'button-primary'}`}
+              className={`button button-large ${localAuthEnabled || hostedAuthEnabled ? 'button-secondary' : 'button-primary'}`}
               href="/api/auth/authorize"
             >
               Continue with Vercel
             </a>
-          ) : (
+          ) : !localAuthEnabled && !hostedAuthEnabled ? (
             <p className="signin-status">
               Vercel sign-in activates when the internal app credentials are configured.
             </p>
-          )}
+          ) : null}
         </div>
       </section>
     </main>
