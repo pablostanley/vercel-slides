@@ -1186,7 +1186,7 @@ function InlineTitleEditor({
         <div className="inline-grid max-w-full items-center">
           <span
             aria-hidden
-            className="invisible col-start-1 row-start-1 overflow-hidden whitespace-pre border border-transparent px-2 py-0.5 font-heading text-[13.5px] font-semibold tracking-[-0.01em]"
+            className="invisible col-start-1 row-start-1 overflow-hidden whitespace-pre border border-transparent px-2 py-0.5 font-heading text-[13.5px] font-medium tracking-[-0.01em]"
           >
             {value || ' '}
           </span>
@@ -1210,7 +1210,7 @@ function InlineTitleEditor({
               }
             }}
             maxLength={80}
-            className="col-start-1 row-start-1 w-full min-w-0 rounded-[5px] border border-foreground/30 bg-card px-2 py-0.5 text-center font-heading text-[13.5px] font-semibold tracking-[-0.01em] outline-none"
+            className="col-start-1 row-start-1 w-full min-w-0 rounded-[5px] border border-foreground/30 bg-card px-2 py-0.5 text-center font-heading text-[13.5px] font-medium tracking-[-0.01em] outline-none"
           />
         </div>
       </div>
@@ -1220,7 +1220,7 @@ function InlineTitleEditor({
   if (!import.meta.env.DEV) {
     return (
       <div className="flex min-w-0 items-baseline justify-center">
-        <h1 className="truncate font-heading text-[13.5px] font-semibold tracking-[-0.01em]">
+        <h1 className="truncate font-heading text-[13.5px] font-medium tracking-[-0.01em]">
           {title}
         </h1>
       </div>
@@ -1238,7 +1238,7 @@ function InlineTitleEditor({
           'hover:border-foreground/30 hover:bg-card focus-visible:border-foreground/30 focus-visible:bg-card focus-visible:outline-none',
         )}
       >
-        <h1 className="truncate font-heading text-[13.5px] font-semibold tracking-[-0.01em]">
+        <h1 className="truncate font-heading text-[13.5px] font-medium tracking-[-0.01em]">
           {title}
         </h1>
       </button>
