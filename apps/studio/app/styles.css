@@ -218,7 +218,26 @@ input:focus-visible {
   line-height: 1.55;
 }
 
-.signin-card > .button {
+.signin-actions {
+  display: grid;
+  align-self: end;
+  gap: 10px;
+}
+
+.signin-actions form,
+.signin-actions .button {
+  width: 100%;
+}
+
+.signin-status {
+  margin: 0;
+  color: var(--ds-gray-900);
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.signin-card > .signin-actions {
   align-self: end;
 }
 

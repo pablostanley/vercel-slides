@@ -173,8 +173,9 @@ export async function getSession(): Promise<SessionIdentity | null> {
     ) {
       return null;
     }
-    const testRole =
-      process.env.NODE_ENV !== 'production' && process.env.STUDIO_TEST_AUTH === '1'
+    const developmentRole =
+      process.env.NODE_ENV !== 'production' &&
+      (process.env.STUDIO_TEST_AUTH === '1' || process.env.STUDIO_LOCAL_AUTH === '1')
         ? payload.role
         : undefined;
     const identity: SessionIdentity = {
@@ -183,7 +184,10 @@ export async function getSession(): Promise<SessionIdentity | null> {
       name: payload.name,
       username: typeof payload.username === 'string' ? payload.username : null,
       avatarUrl: typeof payload.avatarUrl === 'string' ? payload.avatarUrl : null,
-      role: testRole === 'admin' ? 'admin' : roleForUser(payload.sub),
+      role:
+        developmentRole === 'admin' || developmentRole === 'user'
+          ? developmentRole
+          : roleForUser(payload.sub),
       csrfToken: payload.csrfToken,
     };
     if (!isAllowed(identity)) return null;
