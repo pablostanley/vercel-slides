@@ -40,7 +40,7 @@ const Title = ({ children }: { children: ReactNode }) => (
       color: '#FFFFFF',
       fontFamily: "'Geist Sans', 'Geist', -apple-system, BlinkMacSystemFont, sans-serif",
       fontSize: 144,
-      fontWeight: 600,
+      fontWeight: 500,
       lineHeight: 0.94,
       letterSpacing: '-0.06em',
     }}
@@ -138,7 +138,7 @@ const Content: Page = () => (
           maxWidth: 1220,
           margin: '40px 0 0',
           fontSize: 72,
-          fontWeight: 600,
+          fontWeight: 500,
           lineHeight: 1.08,
           letterSpacing: '-0.04em',
         }}
@@ -201,7 +201,7 @@ const Closer: Page = () => (
           maxWidth: 1320,
           margin: 0,
           fontSize: 96,
-          fontWeight: 600,
+          fontWeight: 500,
           lineHeight: 1.02,
           letterSpacing: '-0.05em',
         }}

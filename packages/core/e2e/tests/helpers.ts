@@ -14,6 +14,7 @@ export const devServerUrl = `http://127.0.0.1:${DEV_SERVER_PORT}`;
 export const coreRoot = path.resolve(here, '..', '..');
 export const coreBin = path.join(coreRoot, 'bin.js');
 export const devScratchDir = path.join(coreRoot, 'e2e', '.scratch', 'dev');
+const SLIDE_WATCHER_SETTLE_MS = 200;
 
 export function slideSourcePath(slideId: string, projectDir = devScratchDir): string {
   return path.join(projectDir, 'slides', slideId, 'index.tsx');
@@ -64,6 +65,7 @@ export async function refreshSlidesModule(expectedSlideId: string): Promise<void
       { timeout: 15_000 },
     )
     .toContain(`"${expectedSlideId}"`);
+  await new Promise((resolve) => setTimeout(resolve, SLIDE_WATCHER_SETTLE_MS));
 }
 
 // Deleting first makes the call retry-safe: a CI retry that runs after a

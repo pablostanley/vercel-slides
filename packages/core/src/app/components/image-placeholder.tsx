@@ -90,7 +90,8 @@ export function ImagePlaceholder({
         background:
           'linear-gradient(135deg, rgba(120,120,130,0.06) 0%, rgba(120,120,130,0.02) 50%, rgba(120,120,130,0.06) 100%)',
         color: 'rgba(90, 90, 100, 0.7)',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif',
+        fontFamily:
+          'var(--osd-font-body, "Geist Sans", "Geist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif)',
         textAlign: 'center',
         padding: 24,
         boxSizing: 'border-box',
@@ -112,7 +113,7 @@ export function ImagePlaceholder({
         <span
           style={{
             fontSize: 11,
-            fontWeight: 600,
+            fontWeight: 500,
             letterSpacing: '0.14em',
             textTransform: 'uppercase',
             opacity: 0.55,
@@ -135,7 +136,7 @@ export function ImagePlaceholder({
             style={{
               fontSize: 11,
               fontVariantNumeric: 'tabular-nums',
-              fontFamily: 'ui-monospace, "SF Mono", Menlo, Consolas, monospace',
+              fontFamily: '"Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace',
               opacity: 0.5,
               marginTop: 2,
             }}
@@ -172,7 +173,7 @@ function DropOverlay({ label }: { label: string }) {
       <span
         style={{
           fontSize: 12,
-          fontWeight: 600,
+          fontWeight: 500,
           letterSpacing: '0.02em',
           color: 'oklch(0.45 0.16 250)',
           background: 'rgba(255,255,255,0.92)',
