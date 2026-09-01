@@ -1,7 +1,18 @@
 # Vercel Slides Studio
 
-The hosted studio can run as a loopback-only local authoring workspace until the Internal
-Playground Sign in with Vercel app is available.
+The Studio supports a protected single-admin hosted mode and loopback-only local authoring until
+the Internal Playground Sign in with Vercel app is available.
+
+## Protected hosted authoring
+
+Keep Vercel Deployment Protection enabled for the project, then configure `STUDIO_HOSTED_AUTH=1`,
+a random `STUDIO_HOSTED_ACCESS_CODE` of at least 32 characters, and the stable
+`STUDIO_HOSTED_USER_ID`, `STUDIO_HOSTED_USER_EMAIL`, and `STUDIO_HOSTED_USER_NAME`. The user ID must
+also be present in `ADMIN_VERCEL_USER_IDS`.
+
+The hosted sign-in accepts only same-origin form posts, compares the access code in constant time,
+and issues the same secure HTTP-only session used by Sign in with Vercel. This adapter represents
+one configured administrator; it does not claim per-user identity or multi-user collaboration.
 
 ## Local authoring
 
@@ -46,4 +57,4 @@ ADMIN_VERCEL_USER_IDS
 
 The Vercel OIDC routes, verified ID-token flow, production allow policy, and server-side admin
 checks remain active in the same application. No local-auth setting can enable the local adapter in
-production.
+production, and hosted access remains disabled unless every required hosted setting is present.

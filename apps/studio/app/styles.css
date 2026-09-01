@@ -229,6 +229,39 @@ input:focus-visible {
   width: 100%;
 }
 
+.signin-access-form {
+  display: grid;
+  gap: 8px;
+}
+
+.signin-access-form label {
+  color: var(--ds-gray-900);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.signin-access-input {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid var(--ds-gray-alpha-400);
+  border-radius: 6px;
+  background: var(--ds-background-100);
+  color: var(--ds-gray-1000);
+}
+
+.signin-access-input:hover {
+  border-color: var(--ds-gray-alpha-600);
+}
+
+.signin-error {
+  margin: 0;
+  color: var(--ds-red-700);
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+}
+
 .signin-status {
   margin: 0;
   color: var(--ds-gray-900);
