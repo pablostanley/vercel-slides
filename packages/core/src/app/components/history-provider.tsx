@@ -3,10 +3,12 @@ import {
   type ReactNode,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
 } from 'react';
+import { isTypingTarget } from '@/lib/keys';
 
 export type HistoryEntry = {
   undo: () => void;
@@ -99,6 +101,31 @@ export function HistoryProvider({ children }: { children: ReactNode }) {
     setPast([]);
     setFuture([]);
   }, []);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if ((!event.metaKey && !event.ctrlKey) || event.altKey) return;
+
+      const key = event.key.toLowerCase();
+      const wantsUndo = key === 'z' && !event.shiftKey;
+      const wantsRedo =
+        (key === 'z' && event.shiftKey) ||
+        (key === 'y' && event.ctrlKey && !event.metaKey && !event.shiftKey);
+      if (!wantsUndo && !wantsRedo) return;
+
+      const ownsEditableHistory =
+        event.target instanceof Element && event.target.closest('[data-slide-editing]') !== null;
+      if (isTypingTarget(event.target) && !ownsEditableHistory) return;
+      if ((wantsUndo && !past.length) || (wantsRedo && !future.length)) return;
+
+      event.preventDefault();
+      if (wantsUndo) undo();
+      else redo();
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [past.length, future.length, undo, redo]);
 
   const value = useMemo<HistoryCtx>(
     () => ({

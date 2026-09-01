@@ -271,12 +271,15 @@ function ActiveInlineEditor({
   const [sel, setSel] = useState<TextRange | null>(null);
   const { anchor } = target;
   const rect = useAnchorRect(anchor, layerRef);
+  const previousTextRef = useRef(readEditableText(anchor));
 
   const commit = useCallback(() => {
     if (!anchor.isConnected) return;
+    const value = readEditableText(anchor);
     bufferOps(target.line, target.column, anchor, [
-      { kind: 'set-text', value: readEditableText(anchor) },
+      { kind: 'set-text', value, prevText: previousTextRef.current },
     ]);
+    previousTextRef.current = value;
   }, [anchor, target.line, target.column, bufferOps]);
 
   const applyTextStyle = useCallback(
@@ -323,6 +326,7 @@ function ActiveInlineEditor({
 
     const onBeforeInput = (e: Event) => {
       const ev = e as InputEvent;
+      previousTextRef.current = readEditableText(anchor);
       const type = ev.inputType;
       if (type === 'insertParagraph' || type === 'insertLineBreak') {
         ev.preventDefault();

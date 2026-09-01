@@ -134,6 +134,23 @@ test.describe('inspector editing', () => {
     await expect(editorCanvas(page).getByText('Undo me')).toBeVisible();
   });
 
+  test('keyboard undo and redo work while editing text inline', async ({ page, request }) => {
+    await openEditable(page, request, 'insp-keyboard-history');
+    const headline = editorCanvas(page).locator('h1');
+
+    await headline.click();
+    await expect(headline).toHaveAttribute('contenteditable', 'true');
+    await headline.fill('Undo me');
+    await expect(headline).toHaveText('Undo me');
+    await expect(page.getByRole('button', { name: 'Undo' })).toBeEnabled();
+
+    await page.keyboard.press('ControlOrMeta+z');
+    await expect(headline).toHaveText('Editable headline');
+
+    await page.keyboard.press('ControlOrMeta+Shift+z');
+    await expect(headline).toHaveText('Undo me');
+  });
+
   test('the i shortcut toggles inspect mode', async ({ page, request }) => {
     await openEditable(page, request, 'insp-key');
     await page.keyboard.press('i');
