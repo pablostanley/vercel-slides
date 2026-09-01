@@ -1,3 +1,15 @@
+@font-face {
+  font-family: "Geist Pixel";
+  src: url("/assets/vercel/fonts/GeistPixel-Square.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+:root {
+  --font-geist-pixel: "Geist Pixel", var(--font-geist-mono);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -1053,6 +1065,302 @@ input:focus-visible {
   cursor: text;
   outline: none;
   user-select: text;
+}
+
+.inspector-field select {
+  width: 100%;
+  min-height: 34px;
+  padding: 6px 8px;
+  border: 1px solid var(--ds-gray-alpha-400);
+  border-radius: 6px;
+  background: var(--ds-background-100);
+  color: var(--ds-gray-1000);
+  font: inherit;
+}
+
+.admin-library-shell {
+  min-height: 100dvh;
+  background: var(--ds-background-200);
+}
+
+.admin-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  min-height: 52px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--ds-gray-alpha-400);
+  background: color-mix(in srgb, var(--ds-background-100) 94%, transparent);
+  backdrop-filter: blur(12px);
+  font-size: 13px;
+}
+
+.admin-header > div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.admin-header span {
+  color: var(--ds-gray-900);
+}
+
+.admin-create-panel,
+.admin-library-content {
+  width: min(1480px, calc(100% - 48px));
+  margin: 0 auto;
+}
+
+.admin-create-panel {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.8fr) minmax(480px, 1.2fr);
+  gap: 64px;
+  padding: 56px 0;
+  border-bottom: 1px solid var(--ds-gray-alpha-400);
+}
+
+.admin-create-panel h1 {
+  max-width: 560px;
+  margin: 0;
+  font-size: clamp(32px, 4vw, 56px);
+  line-height: 1;
+  letter-spacing: -0.055em;
+}
+
+.admin-create-panel p:not(.eyebrow) {
+  max-width: 520px;
+  color: var(--ds-gray-900);
+}
+
+.admin-create-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-content: end;
+}
+
+.admin-create-fields label,
+.master-metadata-form label {
+  display: grid;
+  gap: 5px;
+  color: var(--ds-gray-900);
+  font-size: 12px;
+}
+
+.admin-create-fields input,
+.master-metadata-form input,
+.master-metadata-form textarea {
+  min-width: 0;
+  min-height: 36px;
+  padding: 8px 10px;
+  border: 1px solid var(--ds-gray-alpha-400);
+  border-radius: 6px;
+  background: var(--ds-background-100);
+  color: var(--ds-gray-1000);
+  font: inherit;
+}
+
+.admin-library-content {
+  padding: 34px 0 80px;
+}
+
+.admin-master-search {
+  width: min(440px, 100%);
+  margin: 0 0 24px;
+}
+
+.admin-master-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px 16px;
+}
+
+.admin-master-card {
+  min-width: 0;
+}
+
+.admin-master-card > a {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-master-preview {
+  display: block;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--ds-gray-alpha-400);
+  border-radius: 7px;
+  background: #000;
+  box-shadow: var(--ds-shadow-border-small);
+  transition:
+    border-color 120ms ease,
+    transform 160ms ease;
+}
+
+.admin-master-card > a:hover .admin-master-preview {
+  border-color: var(--ds-gray-alpha-700);
+  transform: translateY(-1px);
+}
+
+.admin-master-copy {
+  display: grid;
+  gap: 3px;
+  font-size: 13px;
+}
+
+.admin-master-copy small {
+  color: var(--ds-gray-900);
+}
+
+.admin-master-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.admin-master-actions button {
+  display: inline-flex;
+  min-height: 26px;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 7px;
+  border: 1px solid var(--ds-gray-alpha-400);
+  border-radius: 5px;
+  background: var(--ds-background-100);
+  color: var(--ds-gray-900);
+  font-size: 11px;
+}
+
+.master-toolbar-title {
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+}
+
+.master-version-rail {
+  padding: 14px;
+  overflow-y: auto;
+}
+
+.master-metadata-form {
+  display: grid;
+  gap: 10px;
+}
+
+.master-metadata-form textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+
+.version-history-list {
+  display: grid;
+  gap: 6px;
+  padding-top: 20px;
+  border-top: 1px solid var(--ds-gray-alpha-400);
+}
+
+.version-history-list button {
+  display: flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 9px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ds-gray-1000);
+}
+
+.version-history-list button:hover,
+.version-history-list button.is-selected {
+  border-color: var(--ds-gray-alpha-400);
+  background: var(--ds-background-100);
+}
+
+.version-history-list small {
+  color: var(--ds-gray-900);
+  text-transform: capitalize;
+}
+
+.master-comparison {
+  display: grid;
+  width: min(94%, 1450px);
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.master-comparison figure {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.master-comparison svg {
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--ds-gray-alpha-500);
+  background: #000;
+  box-shadow: var(--ds-shadow-menu);
+}
+
+.master-comparison figcaption {
+  color: var(--ds-gray-900);
+  font: 11px / 1.4 var(--font-geist-mono);
+  text-transform: uppercase;
+}
+
+@media (max-width: 1100px) {
+  .admin-master-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .admin-create-panel {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+
+  .admin-master-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .master-comparison {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .admin-header {
+    padding-inline: 14px;
+  }
+
+  .admin-create-panel,
+  .admin-library-content {
+    width: calc(100% - 28px);
+  }
+
+  .admin-create-fields,
+  .admin-master-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .master-editor-shell {
+    grid-template-rows: 48px minmax(0, 1fr);
+  }
+
+  .master-version-rail {
+    display: none;
+  }
+
+  .master-toolbar-title {
+    min-width: 120px;
+  }
 }
 
 .empty-actions {

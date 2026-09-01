@@ -8,5 +8,7 @@ export default async function DeckPage({ params }: { params: Promise<{ deckId: s
   const session = await getSession();
   if (!session) redirect('/');
   const { deckId } = await params;
-  return <DeckLoader deckId={deckId} session={session} />;
+  const testAssetUploads =
+    process.env.NODE_ENV !== 'production' && process.env.STUDIO_TEST_AUTH === '1';
+  return <DeckLoader deckId={deckId} session={session} testAssetUploads={testAssetUploads} />;
 }

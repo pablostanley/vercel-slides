@@ -6,3 +6,4 @@ export * from './rendering';
 export * from './schema';
 export * from './starter';
 export * from './template';
+export * from './vercel-master-definitions';

@@ -10,10 +10,12 @@ export function DeckLoader({
   deckId,
   session,
   mode = 'edit',
+  testAssetUploads = false,
 }: {
   deckId: string;
   session: SessionIdentity;
   mode?: 'edit' | 'present';
+  testAssetUploads?: boolean;
 }) {
   const [access, setAccess] = useState<DeckAccess | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -48,6 +50,6 @@ export function DeckLoader({
   return mode === 'present' ? (
     <PresentationPlayer deck={access.deck} slides={access.slides} />
   ) : (
-    <StudioEditor session={session} initialAccess={access} />
+    <StudioEditor session={session} initialAccess={access} testAssetUploads={testAssetUploads} />
   );
 }

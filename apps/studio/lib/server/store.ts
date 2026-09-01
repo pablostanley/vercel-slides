@@ -1,10 +1,13 @@
 import type { SlideDocument } from '@open-slide/document';
 import type {
+  AdminMaster,
   Deck,
   DeckAccess,
   DeckMember,
   DeckRole,
   DeckSummary,
+  MasterSlide,
+  MasterSlideVersion,
   PublishedMaster,
   StudioAsset,
   StudioUser,
@@ -97,6 +100,51 @@ export type RecordAssetInput = {
   size: number;
 };
 
+export type CreateMasterInput = {
+  actorId: string;
+  librarySlug: string;
+  id: string;
+  versionId: string;
+  slug: string;
+  title: string;
+  description: string;
+  category: string;
+  tags: string[];
+  document: SlideDocument;
+};
+
+export type UpdateMasterInput = {
+  actorId: string;
+  masterId: string;
+  title?: string;
+  description?: string;
+  category?: string;
+  tags?: string[];
+  status?: MasterSlide['status'];
+};
+
+export type CreateMasterDraftInput = {
+  actorId: string;
+  masterId: string;
+  versionId: string;
+  sourceVersionId: string;
+};
+
+export type UpdateMasterDraftInput = {
+  actorId: string;
+  masterId: string;
+  versionId: string;
+  expectedRevision: number;
+  document: SlideDocument;
+};
+
+export type PublishMasterInput = {
+  actorId: string;
+  masterId: string;
+  versionId: string;
+  expectedRevision: number;
+};
+
 export type StudioStore = {
   ensureUser(identity: IdentityInput): Promise<StudioUser>;
   listDecks(userId: string): Promise<DeckSummary[]>;
@@ -110,6 +158,21 @@ export type StudioStore = {
   mutateDeckSlides(input: MutateDeckSlidesInput): Promise<DeckAccess>;
   listPublishedMasters(userId: string, librarySlug: string): Promise<PublishedMaster[]>;
   getPublishedMaster(userId: string, versionId: string): Promise<PublishedMaster | null>;
+  listAdminMasters(actorId: string, librarySlug: string): Promise<AdminMaster[]>;
+  getAdminMaster(actorId: string, masterId: string): Promise<AdminMaster | null>;
+  createMaster(input: CreateMasterInput): Promise<AdminMaster>;
+  duplicateMaster(
+    actorId: string,
+    sourceMasterId: string,
+    id: string,
+    versionId: string,
+    slug: string,
+  ): Promise<AdminMaster>;
+  updateMaster(input: UpdateMasterInput): Promise<MasterSlide>;
+  reorderMasters(actorId: string, librarySlug: string, masterIds: string[]): Promise<void>;
+  createMasterDraft(input: CreateMasterDraftInput): Promise<MasterSlideVersion>;
+  updateMasterDraft(input: UpdateMasterDraftInput): Promise<MasterSlideVersion>;
+  publishMaster(input: PublishMasterInput): Promise<AdminMaster>;
   recordAsset(input: RecordAssetInput): Promise<StudioAsset>;
 };
 

@@ -1,28 +1,36 @@
 import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { createPreviewMasterCatalog, slideDocumentSchema } from '@open-slide/document';
+import { createVercelMasterCatalog, slideDocumentSchema } from '@open-slide/document';
 import type {
+  AdminMaster,
   Deck,
   DeckAccess,
   DeckMember,
   DeckRole,
   DeckSlide,
   DeckSummary,
+  MasterSlide,
+  MasterSlideVersion,
   PublishedMaster,
   StudioAsset,
   StudioUser,
 } from '@/lib/models';
 import {
   type CreateDeckInput,
+  type CreateMasterDraftInput,
+  type CreateMasterInput,
   type IdentityInput,
   isOwner,
   type MutateDeckSlidesInput,
+  type PublishMasterInput,
   type RecordAssetInput,
   type ShareDeckInput,
   StoreError,
   type StudioStore,
   type UpdateDeckInput,
+  type UpdateMasterDraftInput,
+  type UpdateMasterInput,
 } from './store';
 
 type Membership = {
@@ -46,6 +54,8 @@ type MemoryState = {
   invites: Map<string, Invite>;
   slides: Map<string, DeckSlide>;
   assets: Map<string, StudioAsset>;
+  masters: Map<string, MasterSlide>;
+  masterVersions: Map<string, MasterSlideVersion>;
 };
 
 const globalStore = globalThis as typeof globalThis & { __vercelSlidesMemoryState?: MemoryState };
@@ -65,15 +75,17 @@ function statePath() {
 }
 
 function deserializeState(value: string): MemoryState {
-  const parsed = JSON.parse(value) as Record<keyof MemoryState, unknown[][]>;
-  return {
+  const parsed = JSON.parse(value) as Partial<Record<keyof MemoryState, unknown[][]>>;
+  return seedMasterState({
     users: new Map(parsed.users as Array<[string, StudioUser]>),
     decks: new Map(parsed.decks as Array<[string, Deck]>),
     memberships: new Map(parsed.memberships as Array<[string, Membership]>),
     invites: new Map(parsed.invites as Array<[string, Invite]>),
     slides: new Map(parsed.slides as Array<[string, DeckSlide]>),
     assets: new Map(parsed.assets as Array<[string, StudioAsset]>),
-  };
+    masters: new Map(parsed.masters as Array<[string, MasterSlide]>),
+    masterVersions: new Map(parsed.masterVersions as Array<[string, MasterSlideVersion]>),
+  });
 }
 
 function readPersistedState() {
@@ -94,8 +106,45 @@ function persistState(state: MemoryState) {
       invites: [...state.invites],
       slides: [...state.slides],
       assets: [...state.assets],
+      masters: [...state.masters],
+      masterVersions: [...state.masterVersions],
     }),
   );
+}
+
+function seedMasterState(state: MemoryState) {
+  if (state.masters.size > 0) return state;
+  const createdAt = '2026-09-01T00:00:00.000Z';
+  for (const seeded of createVercelMasterCatalog()) {
+    state.masters.set(seeded.id, {
+      id: seeded.id,
+      libraryId: seeded.libraryId,
+      slug: seeded.slug,
+      title: seeded.title,
+      description: seeded.description,
+      category: seeded.category,
+      tags: seeded.tags,
+      position: seeded.position,
+      currentPublishedVersionId: seeded.versionId,
+      status: 'active',
+      createdAt,
+      updatedAt: createdAt,
+    });
+    state.masterVersions.set(seeded.versionId, {
+      id: seeded.versionId,
+      masterSlideId: seeded.id,
+      version: seeded.version,
+      schemaVersion: seeded.document.schemaVersion,
+      document: seeded.document,
+      thumbnail: null,
+      createdBy: 'seed:vercel',
+      status: 'published',
+      revision: 0,
+      createdAt,
+      publishedAt: createdAt,
+    });
+  }
+  return state;
 }
 
 function getState(): MemoryState {
@@ -106,10 +155,14 @@ function getState(): MemoryState {
     invites: new Map(),
     slides: new Map(),
     assets: new Map(),
+    masters: new Map(),
+    masterVersions: new Map(),
   };
   globalStore.__vercelSlidesMemoryState.slides ??= new Map();
   globalStore.__vercelSlidesMemoryState.assets ??= new Map();
-  return globalStore.__vercelSlidesMemoryState;
+  globalStore.__vercelSlidesMemoryState.masters ??= new Map();
+  globalStore.__vercelSlidesMemoryState.masterVersions ??= new Map();
+  return seedMasterState(globalStore.__vercelSlidesMemoryState);
 }
 
 function isoNow() {
@@ -137,11 +190,27 @@ function requireDeck(state: MemoryState, userId: string, deckId: string) {
   return { deck, role };
 }
 
+function requireAdmin(state: MemoryState, actorId: string) {
+  if (state.users.get(actorId)?.role !== 'admin') {
+    throw new StoreError('forbidden', 'Administrator access is required');
+  }
+}
+
+function adminMaster(state: MemoryState, master: MasterSlide): AdminMaster {
+  return {
+    ...structuredClone(master),
+    versions: [...state.masterVersions.values()]
+      .filter((version) => version.masterSlideId === master.id)
+      .sort((left, right) => right.version - left.version)
+      .map((version) => structuredClone(version)),
+  };
+}
+
 export class MemoryStudioStore implements StudioStore {
   private state = readPersistedState() ?? getState();
 
   private refresh() {
-    this.state = readPersistedState() ?? this.state;
+    this.state = seedMasterState(readPersistedState() ?? this.state);
     globalStore.__vercelSlidesMemoryState = this.state;
   }
 
@@ -513,38 +582,256 @@ export class MemoryStudioStore implements StudioStore {
 
   async listPublishedMasters(_userId: string, librarySlug: string): Promise<PublishedMaster[]> {
     if (librarySlug !== 'vercel') return [];
-    const createdAt = '2026-01-01T00:00:00.000Z';
-    return createPreviewMasterCatalog().map((master) => ({
-      id: master.id,
-      libraryId: master.libraryId,
-      slug: master.slug,
-      title: master.title,
-      description: master.description,
-      category: master.category,
-      tags: master.tags,
-      position: master.position,
-      currentPublishedVersionId: master.versionId,
-      status: 'active',
-      createdAt,
-      updatedAt: createdAt,
-      version: {
-        id: master.versionId,
-        masterSlideId: master.id,
-        version: master.version,
-        schemaVersion: master.document.schemaVersion,
-        document: master.document,
-        thumbnail: null,
-        createdBy: 'seed:vercel',
-        status: 'published',
-        createdAt,
-        publishedAt: createdAt,
-      },
-    }));
+    this.refresh();
+    return [...this.state.masters.values()]
+      .filter(
+        (master) =>
+          master.libraryId === 'library:vercel' &&
+          master.status === 'active' &&
+          master.currentPublishedVersionId,
+      )
+      .sort((left, right) => left.position - right.position)
+      .flatMap((master) => {
+        const version = master.currentPublishedVersionId
+          ? this.state.masterVersions.get(master.currentPublishedVersionId)
+          : null;
+        return version?.status === 'published'
+          ? [{ ...structuredClone(master), version: structuredClone(version) }]
+          : [];
+      });
   }
 
   async getPublishedMaster(userId: string, versionId: string): Promise<PublishedMaster | null> {
     const masters = await this.listPublishedMasters(userId, 'vercel');
     return masters.find((master) => master.version.id === versionId) ?? null;
+  }
+
+  async listAdminMasters(actorId: string, librarySlug: string): Promise<AdminMaster[]> {
+    this.refresh();
+    requireAdmin(this.state, actorId);
+    if (librarySlug !== 'vercel') return [];
+    return [...this.state.masters.values()]
+      .filter((master) => master.libraryId === 'library:vercel')
+      .sort((left, right) => left.position - right.position)
+      .map((master) => adminMaster(this.state, master));
+  }
+
+  async getAdminMaster(actorId: string, masterId: string): Promise<AdminMaster | null> {
+    this.refresh();
+    requireAdmin(this.state, actorId);
+    const master = this.state.masters.get(masterId);
+    return master ? adminMaster(this.state, master) : null;
+  }
+
+  async createMaster(input: CreateMasterInput): Promise<AdminMaster> {
+    this.refresh();
+    requireAdmin(this.state, input.actorId);
+    if (input.librarySlug !== 'vercel') throw new StoreError('not_found', 'Library not found');
+    if (
+      this.state.masters.has(input.id) ||
+      [...this.state.masters.values()].some((master) => master.slug === input.slug)
+    ) {
+      throw new StoreError('conflict', 'A master with this slug already exists');
+    }
+    const now = isoNow();
+    const position =
+      Math.max(-1, ...[...this.state.masters.values()].map((item) => item.position)) + 1;
+    const master: MasterSlide = {
+      id: input.id,
+      libraryId: 'library:vercel',
+      slug: input.slug,
+      title: input.title,
+      description: input.description,
+      category: input.category,
+      tags: [...input.tags],
+      position,
+      currentPublishedVersionId: null,
+      status: 'active',
+      createdAt: now,
+      updatedAt: now,
+    };
+    const version: MasterSlideVersion = {
+      id: input.versionId,
+      masterSlideId: master.id,
+      version: 1,
+      schemaVersion: input.document.schemaVersion,
+      document: slideDocumentSchema.parse(structuredClone(input.document)),
+      thumbnail: null,
+      createdBy: input.actorId,
+      status: 'draft',
+      revision: 0,
+      createdAt: now,
+      publishedAt: null,
+    };
+    this.state.masters.set(master.id, master);
+    this.state.masterVersions.set(version.id, version);
+    this.persist();
+    return adminMaster(this.state, master);
+  }
+
+  async duplicateMaster(
+    actorId: string,
+    sourceMasterId: string,
+    id: string,
+    versionId: string,
+    slug: string,
+  ): Promise<AdminMaster> {
+    const source = await this.getAdminMaster(actorId, sourceMasterId);
+    if (!source) throw new StoreError('not_found', 'Master not found');
+    const sourceVersion = source.versions[0];
+    if (!sourceVersion) throw new StoreError('invalid', 'Master has no version to duplicate');
+    return this.createMaster({
+      actorId,
+      librarySlug: 'vercel',
+      id,
+      versionId,
+      slug,
+      title: `${source.title} copy`,
+      description: source.description,
+      category: source.category,
+      tags: source.tags,
+      document: sourceVersion.document,
+    });
+  }
+
+  async updateMaster(input: UpdateMasterInput): Promise<MasterSlide> {
+    this.refresh();
+    requireAdmin(this.state, input.actorId);
+    const master = this.state.masters.get(input.masterId);
+    if (!master) throw new StoreError('not_found', 'Master not found');
+    const updated = {
+      ...master,
+      ...(input.title !== undefined ? { title: input.title } : {}),
+      ...(input.description !== undefined ? { description: input.description } : {}),
+      ...(input.category !== undefined ? { category: input.category } : {}),
+      ...(input.tags !== undefined ? { tags: [...input.tags] } : {}),
+      ...(input.status !== undefined ? { status: input.status } : {}),
+      updatedAt: isoNow(),
+    };
+    this.state.masters.set(master.id, updated);
+    this.persist();
+    return structuredClone(updated);
+  }
+
+  async reorderMasters(actorId: string, librarySlug: string, masterIds: string[]): Promise<void> {
+    this.refresh();
+    requireAdmin(this.state, actorId);
+    const masters = [...this.state.masters.values()]
+      .filter((master) => master.libraryId === `library:${librarySlug}`)
+      .sort((left, right) => left.position - right.position);
+    if (
+      masters.length !== masterIds.length ||
+      new Set(masterIds).size !== masters.length ||
+      masterIds.some((masterId) => !masters.some((master) => master.id === masterId))
+    ) {
+      throw new StoreError('invalid', 'Master order must include every master exactly once');
+    }
+    masterIds.forEach((masterId, position) => {
+      const master = this.state.masters.get(masterId);
+      if (master) this.state.masters.set(masterId, { ...master, position, updatedAt: isoNow() });
+    });
+    this.persist();
+  }
+
+  async createMasterDraft(input: CreateMasterDraftInput): Promise<MasterSlideVersion> {
+    this.refresh();
+    requireAdmin(this.state, input.actorId);
+    const master = this.state.masters.get(input.masterId);
+    const source = this.state.masterVersions.get(input.sourceVersionId);
+    if (!master || !source || source.masterSlideId !== master.id) {
+      throw new StoreError('not_found', 'Master version not found');
+    }
+    if (
+      [...this.state.masterVersions.values()].some(
+        (version) => version.masterSlideId === master.id && version.status === 'draft',
+      )
+    ) {
+      throw new StoreError('conflict', 'This master already has a draft');
+    }
+    const nextVersion =
+      Math.max(
+        0,
+        ...[...this.state.masterVersions.values()]
+          .filter((version) => version.masterSlideId === master.id)
+          .map((version) => version.version),
+      ) + 1;
+    const draft: MasterSlideVersion = {
+      ...structuredClone(source),
+      id: input.versionId,
+      version: nextVersion,
+      document: structuredClone(source.document),
+      createdBy: input.actorId,
+      status: 'draft',
+      revision: 0,
+      createdAt: isoNow(),
+      publishedAt: null,
+    };
+    this.state.masterVersions.set(draft.id, draft);
+    this.persist();
+    return structuredClone(draft);
+  }
+
+  async updateMasterDraft(input: UpdateMasterDraftInput): Promise<MasterSlideVersion> {
+    this.refresh();
+    requireAdmin(this.state, input.actorId);
+    const version = this.state.masterVersions.get(input.versionId);
+    if (!version || version.masterSlideId !== input.masterId) {
+      throw new StoreError('not_found', 'Master version not found');
+    }
+    if (version.status !== 'draft') {
+      throw new StoreError('invalid', 'Published master versions are immutable');
+    }
+    if (version.revision !== input.expectedRevision) {
+      throw new StoreError(
+        'conflict',
+        'The master draft changed in another session',
+        version.revision,
+      );
+    }
+    const updated: MasterSlideVersion = {
+      ...version,
+      schemaVersion: input.document.schemaVersion,
+      document: slideDocumentSchema.parse(structuredClone(input.document)),
+      revision: version.revision + 1,
+    };
+    this.state.masterVersions.set(version.id, updated);
+    this.persist();
+    return structuredClone(updated);
+  }
+
+  async publishMaster(input: PublishMasterInput): Promise<AdminMaster> {
+    this.refresh();
+    requireAdmin(this.state, input.actorId);
+    const master = this.state.masters.get(input.masterId);
+    const version = this.state.masterVersions.get(input.versionId);
+    if (!master || !version || version.masterSlideId !== master.id) {
+      throw new StoreError('not_found', 'Master version not found');
+    }
+    if (version.status !== 'draft') {
+      throw new StoreError('invalid', 'Only a draft can be published');
+    }
+    if (version.revision !== input.expectedRevision) {
+      throw new StoreError(
+        'conflict',
+        'The master draft changed in another session',
+        version.revision,
+      );
+    }
+    const published: MasterSlideVersion = {
+      ...version,
+      status: 'published',
+      revision: version.revision + 1,
+      publishedAt: isoNow(),
+    };
+    const updatedMaster = {
+      ...master,
+      currentPublishedVersionId: published.id,
+      updatedAt: isoNow(),
+    };
+    this.state.masterVersions.set(published.id, published);
+    this.state.masters.set(master.id, updatedMaster);
+    this.persist();
+    return adminMaster(this.state, updatedMaster);
   }
 
   async recordAsset(input: RecordAssetInput): Promise<StudioAsset> {

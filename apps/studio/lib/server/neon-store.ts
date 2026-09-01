@@ -1,26 +1,34 @@
 import { neon } from '@neondatabase/serverless';
 import { migrateSlideDocument } from '@open-slide/document';
 import type {
+  AdminMaster,
   Deck,
   DeckAccess,
   DeckMember,
   DeckRole,
   DeckSlide,
   DeckSummary,
+  MasterSlide,
+  MasterSlideVersion,
   PublishedMaster,
   StudioAsset,
   StudioUser,
 } from '@/lib/models';
 import {
   type CreateDeckInput,
+  type CreateMasterDraftInput,
+  type CreateMasterInput,
   type IdentityInput,
   isOwner,
   type MutateDeckSlidesInput,
+  type PublishMasterInput,
   type RecordAssetInput,
   type ShareDeckInput,
   StoreError,
   type StudioStore,
   type UpdateDeckInput,
+  type UpdateMasterDraftInput,
+  type UpdateMasterInput,
 } from './store';
 
 type Row = Record<string, unknown>;
@@ -118,9 +126,43 @@ function mapPublishedMaster(row: Row): PublishedMaster {
       thumbnail: (row.thumbnail_json as Record<string, unknown> | null) ?? null,
       createdBy: stringValue(row.created_by),
       status: 'published',
+      revision: Number(row.version_revision ?? 0),
       createdAt: isoValue(row.version_created_at),
       publishedAt: isoValue(row.published_at),
     },
+  };
+}
+
+function mapMaster(row: Row): MasterSlide {
+  return {
+    id: stringValue(row.id),
+    libraryId: stringValue(row.library_id),
+    slug: stringValue(row.slug),
+    title: stringValue(row.title),
+    description: stringValue(row.description),
+    category: stringValue(row.category),
+    tags: (row.tags ?? []) as string[],
+    position: Number(row.position),
+    currentPublishedVersionId: nullableString(row.current_published_version_id),
+    status: row.status === 'archived' ? 'archived' : 'active',
+    createdAt: isoValue(row.created_at),
+    updatedAt: isoValue(row.updated_at),
+  };
+}
+
+function mapMasterVersion(row: Row): MasterSlideVersion {
+  return {
+    id: stringValue(row.id),
+    masterSlideId: stringValue(row.master_slide_id),
+    version: Number(row.version),
+    schemaVersion: Number(row.schema_version),
+    document: migrateSlideDocument(row.document_json),
+    thumbnail: (row.thumbnail_json as Record<string, unknown> | null) ?? null,
+    createdBy: stringValue(row.created_by),
+    status: row.status as MasterSlideVersion['status'],
+    revision: Number(row.revision ?? 0),
+    createdAt: isoValue(row.created_at),
+    publishedAt: row.published_at ? isoValue(row.published_at) : null,
   };
 }
 
@@ -150,6 +192,13 @@ async function requireAccess(userId: string, deckId: string) {
   const row = rows[0];
   if (!row) throw new StoreError('forbidden', 'You do not have access to this presentation');
   return { deck: mapDeck(row), role: row.access_role as DeckRole };
+}
+
+async function requireAdmin(actorId: string) {
+  const rows = await query('SELECT role FROM users WHERE id = $1', [actorId]);
+  if (rows[0]?.role !== 'admin') {
+    throw new StoreError('forbidden', 'Administrator access is required');
+  }
 }
 
 export class NeonStudioStore implements StudioStore {
@@ -662,7 +711,8 @@ export class NeonStudioStore implements StudioStore {
   async listPublishedMasters(_userId: string, librarySlug: string): Promise<PublishedMaster[]> {
     const rows = await query(
       `SELECT ms.*, mv.id AS version_id, mv.version, mv.schema_version AS version_schema_version,
-         mv.document_json, mv.thumbnail_json, mv.created_by, mv.created_at AS version_created_at,
+         mv.document_json, mv.thumbnail_json, mv.created_by, mv.revision AS version_revision,
+         mv.created_at AS version_created_at,
          mv.published_at
        FROM master_slides ms
        JOIN template_libraries tl ON tl.id = ms.library_id
@@ -678,6 +728,268 @@ export class NeonStudioStore implements StudioStore {
   async getPublishedMaster(userId: string, versionId: string): Promise<PublishedMaster | null> {
     const masters = await this.listPublishedMasters(userId, 'vercel');
     return masters.find((master) => master.version.id === versionId) ?? null;
+  }
+
+  async listAdminMasters(actorId: string, librarySlug: string): Promise<AdminMaster[]> {
+    await requireAdmin(actorId);
+    const masterRows = await query(
+      `SELECT ms.*
+       FROM master_slides ms
+       JOIN template_libraries tl ON tl.id = ms.library_id
+       WHERE tl.slug = $1
+       ORDER BY ms.position`,
+      [librarySlug],
+    );
+    if (masterRows.length === 0) return [];
+    const masterIds = masterRows.map((row) => stringValue(row.id));
+    const versionRows = await query(
+      `SELECT * FROM master_slide_versions
+       WHERE master_slide_id = ANY($1::text[])
+       ORDER BY master_slide_id, version DESC`,
+      [masterIds],
+    );
+    return masterRows.map((row) => {
+      const master = mapMaster(row);
+      return {
+        ...master,
+        versions: versionRows
+          .filter((version) => stringValue(version.master_slide_id) === master.id)
+          .map(mapMasterVersion),
+      };
+    });
+  }
+
+  async getAdminMaster(actorId: string, masterId: string): Promise<AdminMaster | null> {
+    await requireAdmin(actorId);
+    const masterRows = await query('SELECT * FROM master_slides WHERE id = $1', [masterId]);
+    const row = masterRows[0];
+    if (!row) return null;
+    const versionRows = await query(
+      'SELECT * FROM master_slide_versions WHERE master_slide_id = $1 ORDER BY version DESC',
+      [masterId],
+    );
+    return { ...mapMaster(row), versions: versionRows.map(mapMasterVersion) };
+  }
+
+  async createMaster(input: CreateMasterInput): Promise<AdminMaster> {
+    await requireAdmin(input.actorId);
+    const rows = await query(
+      `WITH library AS (
+         SELECT id FROM template_libraries WHERE slug = $1
+       ), next_position AS (
+         SELECT COALESCE(MAX(position), -1) + 1 AS position
+         FROM master_slides WHERE library_id = (SELECT id FROM library)
+       ), inserted_master AS (
+         INSERT INTO master_slides(
+           id, library_id, slug, title, description, category, tags, position
+         )
+         SELECT $2, library.id, $3, $4, $5, $6, $7, next_position.position
+         FROM library CROSS JOIN next_position
+         RETURNING id
+       )
+       INSERT INTO master_slide_versions(
+         id, master_slide_id, version, schema_version, document_json, created_by, status
+       )
+       SELECT $8, id, 1, $9, $10::jsonb, $11, 'draft' FROM inserted_master
+       RETURNING id`,
+      [
+        input.librarySlug,
+        input.id,
+        input.slug,
+        input.title,
+        input.description,
+        input.category,
+        input.tags,
+        input.versionId,
+        input.document.schemaVersion,
+        JSON.stringify(input.document),
+        input.actorId,
+      ],
+    );
+    if (!rows[0]) throw new StoreError('not_found', 'Library not found');
+    const master = await this.getAdminMaster(input.actorId, input.id);
+    if (!master) throw new Error('Failed to create master');
+    return master;
+  }
+
+  async duplicateMaster(
+    actorId: string,
+    sourceMasterId: string,
+    id: string,
+    versionId: string,
+    slug: string,
+  ): Promise<AdminMaster> {
+    const source = await this.getAdminMaster(actorId, sourceMasterId);
+    if (!source) throw new StoreError('not_found', 'Master not found');
+    const sourceVersion = source.versions[0];
+    if (!sourceVersion) throw new StoreError('invalid', 'Master has no version to duplicate');
+    return this.createMaster({
+      actorId,
+      librarySlug: 'vercel',
+      id,
+      versionId,
+      slug,
+      title: `${source.title} copy`,
+      description: source.description,
+      category: source.category,
+      tags: source.tags,
+      document: sourceVersion.document,
+    });
+  }
+
+  async updateMaster(input: UpdateMasterInput): Promise<MasterSlide> {
+    await requireAdmin(input.actorId);
+    const rows = await query(
+      `UPDATE master_slides SET
+         title = COALESCE($2, title),
+         description = COALESCE($3, description),
+         category = COALESCE($4, category),
+         tags = COALESCE($5, tags),
+         status = COALESCE($6, status),
+         updated_at = now()
+       WHERE id = $1 RETURNING *`,
+      [
+        input.masterId,
+        input.title ?? null,
+        input.description ?? null,
+        input.category ?? null,
+        input.tags ?? null,
+        input.status ?? null,
+      ],
+    );
+    if (!rows[0]) throw new StoreError('not_found', 'Master not found');
+    return mapMaster(rows[0]);
+  }
+
+  async reorderMasters(actorId: string, librarySlug: string, masterIds: string[]): Promise<void> {
+    await requireAdmin(actorId);
+    const rows = await query(
+      `WITH library AS (
+         SELECT id FROM template_libraries WHERE slug = $1
+       ), expected AS (
+         SELECT COUNT(*)::int AS count FROM master_slides
+         WHERE library_id = (SELECT id FROM library)
+       ), input AS (
+         SELECT id, position
+         FROM jsonb_to_recordset($2::jsonb) AS item(id text, position integer)
+       ), valid AS (
+         SELECT 1
+         WHERE (SELECT count FROM expected) = (SELECT COUNT(*) FROM input)
+           AND (SELECT COUNT(DISTINCT id) FROM input) = (SELECT count FROM expected)
+           AND NOT EXISTS (
+             SELECT 1 FROM input
+             LEFT JOIN master_slides ms ON ms.id = input.id
+               AND ms.library_id = (SELECT id FROM library)
+             WHERE ms.id IS NULL
+           )
+       ), updated AS (
+         UPDATE master_slides ms
+         SET position = input.position, updated_at = now()
+         FROM input, valid
+         WHERE ms.id = input.id
+         RETURNING ms.id
+       ) SELECT COUNT(*) AS count FROM updated`,
+      [librarySlug, JSON.stringify(masterIds.map((id, position) => ({ id, position })))],
+    );
+    if (Number(rows[0]?.count ?? 0) !== masterIds.length) {
+      throw new StoreError('invalid', 'Master order must include every master exactly once');
+    }
+  }
+
+  async createMasterDraft(input: CreateMasterDraftInput): Promise<MasterSlideVersion> {
+    await requireAdmin(input.actorId);
+    const rows = await query(
+      `WITH source AS (
+         SELECT * FROM master_slide_versions
+         WHERE id = $2 AND master_slide_id = $1
+           AND NOT EXISTS (
+             SELECT 1 FROM master_slide_versions
+             WHERE master_slide_id = $1 AND status = 'draft'
+           )
+       ), next_version AS (
+         SELECT COALESCE(MAX(version), 0) + 1 AS version
+         FROM master_slide_versions WHERE master_slide_id = $1
+       )
+       INSERT INTO master_slide_versions(
+         id, master_slide_id, version, schema_version, document_json, thumbnail_json,
+         created_by, status, revision
+       )
+       SELECT $3, $1, next_version.version, source.schema_version, source.document_json,
+         source.thumbnail_json, $4, 'draft', 0
+       FROM source CROSS JOIN next_version
+       RETURNING *`,
+      [input.masterId, input.sourceVersionId, input.versionId, input.actorId],
+    );
+    if (!rows[0]) throw new StoreError('conflict', 'This master already has a draft');
+    return mapMasterVersion(rows[0]);
+  }
+
+  async updateMasterDraft(input: UpdateMasterDraftInput): Promise<MasterSlideVersion> {
+    await requireAdmin(input.actorId);
+    const rows = await query(
+      `UPDATE master_slide_versions
+       SET schema_version = $4, document_json = $5::jsonb, revision = revision + 1
+       WHERE id = $2 AND master_slide_id = $1 AND status = 'draft' AND revision = $3
+       RETURNING *`,
+      [
+        input.masterId,
+        input.versionId,
+        input.expectedRevision,
+        input.document.schemaVersion,
+        JSON.stringify(input.document),
+      ],
+    );
+    if (!rows[0]) {
+      const current = await query(
+        'SELECT revision, status FROM master_slide_versions WHERE id = $1 AND master_slide_id = $2',
+        [input.versionId, input.masterId],
+      );
+      if (!current[0]) throw new StoreError('not_found', 'Master version not found');
+      if (current[0].status !== 'draft') {
+        throw new StoreError('invalid', 'Published master versions are immutable');
+      }
+      throw new StoreError(
+        'conflict',
+        'The master draft changed in another session',
+        Number(current[0].revision),
+      );
+    }
+    return mapMasterVersion(rows[0]);
+  }
+
+  async publishMaster(input: PublishMasterInput): Promise<AdminMaster> {
+    await requireAdmin(input.actorId);
+    const rows = await query(
+      `WITH published AS (
+         UPDATE master_slide_versions
+         SET status = 'published', published_at = now(), revision = revision + 1
+         WHERE id = $2 AND master_slide_id = $1 AND status = 'draft' AND revision = $3
+         RETURNING id
+       )
+       UPDATE master_slides
+       SET current_published_version_id = published.id, updated_at = now()
+       FROM published WHERE master_slides.id = $1
+       RETURNING master_slides.id`,
+      [input.masterId, input.versionId, input.expectedRevision],
+    );
+    if (!rows[0]) {
+      const current = await query(
+        'SELECT revision, status FROM master_slide_versions WHERE id = $1 AND master_slide_id = $2',
+        [input.versionId, input.masterId],
+      );
+      if (!current[0]) throw new StoreError('not_found', 'Master version not found');
+      if (current[0].status !== 'draft') {
+        throw new StoreError('invalid', 'Only a draft can be published');
+      }
+      throw new StoreError(
+        'conflict',
+        'The master draft changed in another session',
+        Number(current[0].revision),
+      );
+    }
+    const master = await this.getAdminMaster(input.actorId, input.masterId);
+    if (!master) throw new Error('Failed to publish master');
+    return master;
   }
 
   async recordAsset(input: RecordAssetInput): Promise<StudioAsset> {

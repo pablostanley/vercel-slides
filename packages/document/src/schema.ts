@@ -10,6 +10,7 @@ const idSchema = z
   .max(160)
   .regex(/^[a-zA-Z0-9][a-zA-Z0-9._:-]*$/);
 const colorSchema = z.string().min(1).max(128);
+const paintSchema = z.string().min(1).max(4000);
 const tokenBindingSchema = z
   .object({
     token: z.string().min(1).max(160),
@@ -44,7 +45,7 @@ const baseElementShape = {
 
 const typographySchema = z
   .object({
-    fontFamily: z.enum(['geist-sans', 'geist-mono']).default('geist-sans'),
+    fontFamily: z.enum(['geist-sans', 'geist-mono', 'geist-pixel']).default('geist-sans'),
     fontSize: z.number().finite().positive(),
     fontWeight: z.number().int().min(100).max(900).default(400),
     lineHeight: z.number().finite().positive().default(1.2),
@@ -57,7 +58,7 @@ const typographySchema = z
 
 const boxStyleSchema = z
   .object({
-    fill: colorSchema.optional(),
+    fill: paintSchema.optional(),
     stroke: colorSchema.optional(),
     strokeWidth: z.number().finite().nonnegative().default(0),
     radius: z.number().finite().nonnegative().default(0),
@@ -85,11 +86,13 @@ const textSchema = z
 
 const richTextRunSchema = z
   .object({
+    id: idSchema,
     text: z.string().max(50_000),
     bold: z.boolean().optional(),
     italic: z.boolean().optional(),
     underline: z.boolean().optional(),
     code: z.boolean().optional(),
+    fontWeight: z.number().int().min(100).max(900).optional(),
     color: colorSchema.optional(),
     link: z.string().url().optional(),
   })
@@ -118,7 +121,7 @@ const imageSchema = z
   .object({
     ...baseElementShape,
     type: z.literal('image'),
-    src: z.string().min(1).max(4000),
+    src: z.string().min(1).max(50_000),
     alt: z.string().max(1000),
     fit: z.enum(['cover', 'contain', 'fill']).default('cover'),
     focalPoint: z
@@ -134,6 +137,7 @@ const shapeSchema = z
     ...baseElementShape,
     type: z.literal('shape'),
     shape: z.enum(['rectangle', 'ellipse', 'triangle', 'diamond', 'pill']),
+    clipPath: z.string().min(1).max(1000).optional(),
     style: boxStyleSchema,
   })
   .strict();

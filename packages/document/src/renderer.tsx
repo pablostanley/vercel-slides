@@ -16,7 +16,10 @@ export type SlideRendererProps = {
   onTextChange?: (elementId: string, text: string) => void;
 };
 
-function fontFamily(value: 'geist-sans' | 'geist-mono') {
+function fontFamily(value: 'geist-sans' | 'geist-mono' | 'geist-pixel') {
+  if (value === 'geist-pixel') {
+    return 'var(--font-geist-pixel, "Geist Pixel"), var(--font-geist-mono, "Geist Mono"), monospace';
+  }
   return value === 'geist-mono'
     ? 'var(--font-geist-mono, "Geist Mono"), monospace'
     : 'var(--font-geist-sans, Geist), sans-serif';
@@ -24,6 +27,7 @@ function fontFamily(value: 'geist-sans' | 'geist-mono') {
 
 function baseStyle(element: SlideElement): CSSProperties {
   return {
+    boxSizing: 'border-box',
     width: '100%',
     height: '100%',
     opacity: element.opacity,
@@ -74,11 +78,11 @@ function RichText({ element }: { element: Extract<SlideElement, { type: 'richTex
         <p key={paragraph.id} style={{ margin: 0, textAlign: paragraph.align }}>
           {paragraph.runs.map((run) => (
             <span
-              key={`${paragraph.id}:${run.text}:${run.color ?? ''}:${run.bold ? 'bold' : ''}`}
+              key={run.id}
               style={{
                 color: run.color,
                 fontStyle: run.italic ? 'italic' : undefined,
-                fontWeight: run.bold ? 650 : undefined,
+                fontWeight: run.fontWeight ?? (run.bold ? 650 : undefined),
                 textDecoration: run.underline ? 'underline' : undefined,
                 fontFamily: run.code ? fontFamily('geist-mono') : undefined,
               }}
@@ -268,7 +272,7 @@ function ElementContent({
                 : element.shape === 'pill'
                   ? Math.max(element.width, element.height)
                   : element.style.radius,
-            clipPath,
+            clipPath: element.clipPath ?? clipPath,
           }}
         />
       );

@@ -29,9 +29,9 @@ export async function POST(request: Request) {
     const starterSlugs = [
       'cover',
       'agenda',
-      'section',
-      'title-body',
-      'data-bars',
+      'section-divider',
+      'title-and-body',
+      'chart',
       'decision',
       'closing',
     ];

@@ -6,6 +6,7 @@ import {
   commitHistory,
   createBlankSlideDocument,
   createHistory,
+  createVercelMasterCatalog,
   createVercelStarterDocuments,
   migrateSlideDocument,
   redoHistory,
@@ -13,6 +14,8 @@ import {
   slideDocumentSchema,
   undoHistory,
 } from './index';
+import migrationReport from './vercel-master-migration-report.generated.json';
+import visualReport from './vercel-master-visual-report.generated.json';
 
 describe('slide document schema', () => {
   it('accepts a trusted 1920x1080 scene graph and rejects executable element types', () => {
@@ -160,6 +163,33 @@ describe('Vercel starter', () => {
     expect(documents).toHaveLength(7);
     expect(new Set(documents.map((document) => document.id)).size).toBe(7);
     for (const document of documents) expect(slideDocumentSchema.parse(document)).toEqual(document);
+  });
+});
+
+describe('Vercel master seed', () => {
+  it('creates all 62 masters with deterministic stable ids', () => {
+    const first = createVercelMasterCatalog();
+    const second = createVercelMasterCatalog();
+    expect(first).toHaveLength(62);
+    expect(second).toEqual(first);
+    expect(new Set(first.map((master) => master.id)).size).toBe(62);
+    expect(first[0]).toMatchObject({
+      id: 'master:vercel:cover',
+      versionId: 'master-version:vercel:cover:1',
+      position: 0,
+    });
+    for (const master of first) {
+      expect(slideDocumentSchema.parse(master.document)).toEqual(master.document);
+    }
+  });
+
+  it('keeps every migrated master representable and within the visual regression budget', () => {
+    expect(migrationReport.masterCount).toBe(62);
+    expect(migrationReport.unsupportedMasterCount).toBe(0);
+    expect(migrationReport.masters.every((master) => master.skipped.length === 0)).toBe(true);
+    expect(visualReport.masterCount).toBe(62);
+    expect(visualReport.averageNormalizedRmse).toBeLessThan(0.1);
+    expect(visualReport.maximumNormalizedRmse).toBeLessThan(0.17);
   });
 });
 

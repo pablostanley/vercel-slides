@@ -100,12 +100,17 @@ export type MasterSlideVersion = {
   thumbnail: Record<string, unknown> | null;
   createdBy: string;
   status: 'draft' | 'published' | 'archived';
+  revision: number;
   createdAt: string;
   publishedAt: string | null;
 };
 
 export type PublishedMaster = MasterSlide & {
   version: MasterSlideVersion;
+};
+
+export type AdminMaster = MasterSlide & {
+  versions: MasterSlideVersion[];
 };
 
 export type StudioAsset = {
