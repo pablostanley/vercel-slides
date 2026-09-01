@@ -1,5 +1,14 @@
 import type { SlideDocument } from '@open-slide/document';
-import type { Deck, DeckAccess, DeckMember, DeckRole, DeckSummary, StudioUser } from '@/lib/models';
+import type {
+  Deck,
+  DeckAccess,
+  DeckMember,
+  DeckRole,
+  DeckSummary,
+  PublishedMaster,
+  StudioAsset,
+  StudioUser,
+} from '@/lib/models';
 
 export type IdentityInput = {
   id: string;
@@ -40,6 +49,54 @@ export type ShareDeckInput = {
   role: Exclude<DeckRole, 'owner'>;
 };
 
+export type DeckSlideMutation =
+  | {
+      operation: 'update';
+      slideId: string;
+      document?: SlideDocument;
+      notes?: string;
+    }
+  | {
+      operation: 'insert';
+      slideId: string;
+      afterSlideId: string | null;
+      document: SlideDocument;
+      masterSlideId: string | null;
+      masterVersionId: string | null;
+    }
+  | { operation: 'duplicate'; slideId: string; newSlideId: string; document: SlideDocument }
+  | { operation: 'delete'; slideId: string }
+  | { operation: 'reorder'; slideIds: string[] }
+  | {
+      operation: 'restore';
+      slides: Array<{
+        id: string;
+        document: SlideDocument;
+        notes: string;
+        masterSlideId: string | null;
+        masterVersionId: string | null;
+      }>;
+    };
+
+export type MutateDeckSlidesInput = {
+  actorId: string;
+  deckId: string;
+  expectedRevision: number;
+  mutation: DeckSlideMutation;
+};
+
+export type RecordAssetInput = {
+  id: string;
+  ownerId: string;
+  deckId: string;
+  blobUrl: string;
+  pathname: string;
+  contentType: string;
+  width: number | null;
+  height: number | null;
+  size: number;
+};
+
 export type StudioStore = {
   ensureUser(identity: IdentityInput): Promise<StudioUser>;
   listDecks(userId: string): Promise<DeckSummary[]>;
@@ -50,6 +107,10 @@ export type StudioStore = {
   listMembers(actorId: string, deckId: string): Promise<DeckMember[]>;
   shareDeck(input: ShareDeckInput): Promise<DeckMember>;
   unshareDeck(actorId: string, deckId: string, email: string): Promise<void>;
+  mutateDeckSlides(input: MutateDeckSlidesInput): Promise<DeckAccess>;
+  listPublishedMasters(userId: string, librarySlug: string): Promise<PublishedMaster[]>;
+  getPublishedMaster(userId: string, versionId: string): Promise<PublishedMaster | null>;
+  recordAsset(input: RecordAssetInput): Promise<StudioAsset>;
 };
 
 export class StoreError extends Error {

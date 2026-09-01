@@ -1,3 +1,8 @@
+import {
+  cloneMasterDocument,
+  createBlankSlideDocument,
+  createPreviewMasterCatalog,
+} from '@open-slide/document';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { MemoryStudioStore, resetMemoryStore } from './memory-store';
 import type { StoreError } from './store';
@@ -106,5 +111,93 @@ describe('deck authorization and revisions', () => {
     expect(invite.pending).toBe(true);
     await store.ensureUser(collaborator);
     expect(await store.getDeckAccess(collaborator.id, deck.id)).toMatchObject({ role: 'editor' });
+  });
+
+  it('rejects viewer and stale slide mutations', async () => {
+    const store = new MemoryStudioStore();
+    await store.ensureUser(owner);
+    await store.ensureUser(collaborator);
+    const document = createBlankSlideDocument('slide:one');
+    const deck = await store.createDeck({
+      id: 'deck:mutations',
+      ownerId: owner.id,
+      title: 'Mutations',
+      templateLibraryId: 'library:vercel',
+      slides: [
+        {
+          id: 'slide:one',
+          document,
+          notes: '',
+          masterSlideId: null,
+          masterVersionId: null,
+        },
+      ],
+    });
+    await store.shareDeck({
+      actorId: owner.id,
+      deckId: deck.id,
+      email: collaborator.email,
+      role: 'viewer',
+    });
+    await expect(
+      store.mutateDeckSlides({
+        actorId: collaborator.id,
+        deckId: deck.id,
+        expectedRevision: 0,
+        mutation: { operation: 'delete', slideId: 'slide:one' },
+      }),
+    ).rejects.toMatchObject({ code: 'forbidden' });
+    const updated = await store.mutateDeckSlides({
+      actorId: owner.id,
+      deckId: deck.id,
+      expectedRevision: 0,
+      mutation: { operation: 'update', slideId: 'slide:one', notes: 'Saved' },
+    });
+    expect(updated.deck.revision).toBe(1);
+    await expect(
+      store.mutateDeckSlides({
+        actorId: owner.id,
+        deckId: deck.id,
+        expectedRevision: 0,
+        mutation: { operation: 'update', slideId: 'slide:one', notes: 'Stale' },
+      }),
+    ).rejects.toMatchObject({ code: 'conflict', currentRevision: 1 });
+  });
+
+  it('inserts an independent master copy and restores structural history', async () => {
+    const store = new MemoryStudioStore();
+    await store.ensureUser(owner);
+    const deck = await store.createDeck({
+      id: 'deck:master-copy',
+      ownerId: owner.id,
+      title: 'Master copy',
+      templateLibraryId: 'library:vercel',
+      slides: [],
+    });
+    const master = createPreviewMasterCatalog()[0];
+    const document = cloneMasterDocument(master.document, 'slide:copy', (id) => `copy:${id}`);
+    const inserted = await store.mutateDeckSlides({
+      actorId: owner.id,
+      deckId: deck.id,
+      expectedRevision: 0,
+      mutation: {
+        operation: 'insert',
+        slideId: 'slide:copy',
+        afterSlideId: null,
+        document,
+        masterSlideId: master.id,
+        masterVersionId: master.versionId,
+      },
+    });
+    inserted.slides[0].document.elements[0].x += 100;
+    expect(master.document.elements[0].x).not.toBe(inserted.slides[0].document.elements[0].x);
+    const restored = await store.mutateDeckSlides({
+      actorId: owner.id,
+      deckId: deck.id,
+      expectedRevision: 1,
+      mutation: { operation: 'restore', slides: [] },
+    });
+    expect(restored.slides).toHaveLength(0);
+    expect(restored.deck.revision).toBe(2);
   });
 });

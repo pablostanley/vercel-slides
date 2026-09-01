@@ -103,3 +103,20 @@ export type MasterSlideVersion = {
   createdAt: string;
   publishedAt: string | null;
 };
+
+export type PublishedMaster = MasterSlide & {
+  version: MasterSlideVersion;
+};
+
+export type StudioAsset = {
+  id: string;
+  ownerId: string;
+  deckId: string | null;
+  blobUrl: string;
+  pathname: string;
+  contentType: string;
+  width: number | null;
+  height: number | null;
+  size: number;
+  createdAt: string;
+};
