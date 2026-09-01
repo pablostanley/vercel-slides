@@ -31,7 +31,7 @@ export const zhTW: Locale = {
   },
 
   home: {
-    appTitle: 'open-slide',
+    appTitle: 'Vercel Slides',
     draft: '草稿',
     duplicate: '複製',
     themes: '主題',

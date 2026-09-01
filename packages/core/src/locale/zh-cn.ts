@@ -31,7 +31,7 @@ export const zhCN: Locale = {
   },
 
   home: {
-    appTitle: 'open-slide',
+    appTitle: 'Vercel Slides',
     draft: '草稿',
     duplicate: '复制',
     themes: '主题',

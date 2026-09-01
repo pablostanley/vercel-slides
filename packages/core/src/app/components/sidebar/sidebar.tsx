@@ -1,8 +1,8 @@
-import { Plus, Search } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
-import logo from '@/assets/open-slide.png';
+import { IconMagnifyingGlass, IconPlus } from '@/components/geist-icons';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { VercelMark } from '@/components/vercel-mark';
 import type { Folder, FolderIcon } from '@/lib/sdk';
 import { format, useLocale } from '@/lib/use-locale';
 import { cn } from '@/lib/utils';
@@ -128,36 +128,28 @@ export function Sidebar({
   }, [creating]);
 
   return (
-    <aside className="group/side relative flex h-full w-[16.5rem] shrink-0 flex-col bg-sidebar text-sidebar-foreground">
-      <div className="flex items-center gap-2.5 px-4 pt-4 pb-3">
-        <img
-          src={logo}
-          alt=""
-          aria-hidden
-          draggable={false}
-          className="size-6 shrink-0 select-none rounded-[6px] ring-1 ring-foreground/10"
-        />
-        <h1 className="font-heading text-[13.5px] font-semibold tracking-tight">
-          {t.home.appTitle}
-        </h1>
+    <aside className="group/side relative flex h-full w-[15rem] shrink-0 flex-col border-r border-gray-alpha-400 bg-sidebar text-sidebar-foreground">
+      <div className="flex h-12 items-center gap-2 px-3">
+        <VercelMark className="size-4 shrink-0" />
+        <h1 className="text-label-14 font-semibold">{t.home.appTitle}</h1>
       </div>
 
-      <div className="px-2 pb-3">
+      <div className="px-2 pb-4">
         <button
           type="button"
           onClick={onOpenCommandMenu}
           aria-label={t.commandMenu.triggerAria}
           aria-haspopup="dialog"
           className={cn(
-            'flex h-8 w-full items-center gap-2 rounded-[6px] border border-border bg-card px-2.5 text-[12.5px] text-muted-foreground shadow-edge outline-none',
+            'flex h-8 w-full items-center gap-2 rounded-md border border-gray-alpha-400 bg-background-100 px-2.5 text-label-13 text-gray-900 shadow-border outline-none',
             'transition-[border-color,color,background-color] duration-100',
-            'hover:border-foreground/20 hover:text-foreground',
-            'focus-visible:border-foreground/30 focus-visible:ring-2 focus-visible:ring-ring/30',
+            'hover:border-gray-alpha-600 hover:text-gray-1000',
+            'focus-visible:border-blue-700 focus-visible:ring-2 focus-visible:ring-blue-700/20',
           )}
         >
-          <Search className="size-3.5 shrink-0" aria-hidden />
+          <IconMagnifyingGlass className="size-3.5 shrink-0" />
           <span className="flex-1 truncate text-left">{t.commandMenu.triggerTooltip}</span>
-          <kbd className="rounded-[4px] border border-hairline bg-muted/60 px-1 py-px font-mono text-[9.5px] leading-none tracking-[0.04em] text-muted-foreground">
+          <kbd className="rounded-sm border border-gray-alpha-400 bg-gray-alpha-100 px-1 py-px text-label-12-mono leading-none text-gray-900">
             {COMMAND_MENU_SHORTCUT}
           </kbd>
         </button>
@@ -204,7 +196,7 @@ export function Sidebar({
               'group-hover/side:opacity-100 focus-visible:opacity-100 focus-visible:ring-1 focus-visible:ring-brand',
             )}
           >
-            <Plus className="size-3.5" />
+            <IconPlus className="size-3.5" />
           </button>
         )}
       </div>

@@ -31,7 +31,7 @@ export const ja: Locale = {
   },
 
   home: {
-    appTitle: 'open-slide',
+    appTitle: 'Vercel Slides',
     draft: '下書き',
     duplicate: '複製',
     themes: 'テーマ',

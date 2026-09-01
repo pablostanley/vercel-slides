@@ -12,7 +12,6 @@ import {
   Maximize,
   MonitorSpeaker,
   MoreHorizontal,
-  Play,
   Presentation,
   Terminal,
 } from 'lucide-react';
@@ -28,6 +27,7 @@ import {
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { AssetView } from '@/components/asset-view';
+import { IconPlay } from '@/components/geist-icons';
 import { HistoryProvider } from '@/components/history-provider';
 import { CommentWidget } from '@/components/inspector/comment-widget';
 import { InlineEditLayer } from '@/components/inspector/inline-text-editor';
@@ -52,6 +52,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { VercelMark } from '@/components/vercel-mark';
 import { useFolders } from '@/lib/folders';
 import { hasModifier, isBackwardKey, isForwardKey, isTypingTarget } from '@/lib/keys';
 import { readLastHomeLocation } from '@/lib/last-home-location';
@@ -602,9 +603,9 @@ export function Slide() {
     <HistoryProvider>
       <InspectorProvider slideId={slideId} pageIndex={index}>
         <SelectionReporter />
-        <div className="flex h-dvh flex-col overflow-hidden bg-sidebar text-foreground">
+        <div className="flex h-dvh flex-col overflow-hidden bg-background-200 text-foreground">
           {/* Toolbar sits directly on the chrome ground — three zones, mono-folio center */}
-          <header className="relative flex h-12 shrink-0 items-center gap-2 px-2 md:px-3">
+          <header className="relative flex h-12 shrink-0 items-center gap-2 border-b border-gray-alpha-400 bg-background-100 px-2 md:px-3">
             <div className="flex flex-1 items-center gap-1.5 md:flex-none md:gap-2">
               {showSlideBrowser && (
                 <button
@@ -617,6 +618,7 @@ export function Slide() {
                   <ChevronLeft className="size-4" />
                 </button>
               )}
+              <VercelMark className="mx-1 hidden size-4 md:block" />
               <span aria-hidden className="mx-0.5 hidden h-5 w-px bg-hairline md:block" />
               {import.meta.env.DEV && (
                 <Tabs
@@ -639,7 +641,11 @@ export function Slide() {
                   </TabsList>
                 </Tabs>
               )}
-              {import.meta.env.DEV && <AgentConnectedBadge />}
+              {import.meta.env.DEV && (
+                <div className="hidden sm:block">
+                  <AgentConnectedBadge />
+                </div>
+              )}
             </div>
 
             {/* On md+ the title centers to the viewport via absolute positioning. On mobile the
@@ -747,7 +753,7 @@ export function Slide() {
                     onClick={() => setPlayMode(isMobile ? 'window' : 'fullscreen')}
                     className="px-2.5 md:rounded-r-none md:px-3"
                   >
-                    <Play className="size-3.5 fill-current" />
+                    <IconPlay className="size-3.5" />
                     <span className="hidden md:inline">{t.slide.present}</span>
                   </Button>
                   <DropdownMenu>
@@ -757,14 +763,14 @@ export function Slide() {
                       title={t.slide.presentMenuAria}
                       className={cn(
                         buttonVariants({ variant: 'brand', size: 'sm' }),
-                        'hidden rounded-l-none px-1.5 shadow-[inset_1px_0_0_oklch(0_0_0/0.12),inset_0_1px_0_oklch(1_0_0/0.18),0_1px_0_oklch(0_0_0/0.16)] md:inline-flex',
+                        'hidden rounded-l-none border-l border-gray-alpha-400 px-1.5 md:inline-flex',
                       )}
                     >
                       <ChevronDown className="size-3.5" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="min-w-[200px]">
                       <DropdownMenuItem onClick={() => setPlayMode('window')}>
-                        <Play />
+                        <IconPlay />
                         {t.slide.presentInWindow}
                         <DropdownMenuShortcut>↵</DropdownMenuShortcut>
                       </DropdownMenuItem>
@@ -791,7 +797,7 @@ export function Slide() {
           </header>
 
           {view === 'assets' ? (
-            <div className="min-h-0 flex-1 overflow-hidden md:mx-2 md:mb-2 md:rounded-[10px] md:bg-background md:shadow-edge md:ring-1 md:ring-foreground/[0.06]">
+            <div className="min-h-0 flex-1 overflow-hidden md:m-2 md:rounded-lg md:bg-background-100 md:shadow-border">
               <AssetView slideId={slideId} />
             </div>
           ) : (
@@ -812,7 +818,7 @@ export function Slide() {
                     ref={slideViewportRef}
                     data-inspector-root
                     data-slide-id={slideId}
-                    className="relative min-h-0 min-w-0 flex-1 bg-background p-2 md:mx-2 md:mb-2 md:rounded-[10px] md:p-10 md:shadow-edge md:ring-1 md:ring-foreground/[0.06]"
+                    className="workspace-grid relative min-h-0 min-w-0 flex-1 p-2 md:m-2 md:rounded-lg md:p-10 md:shadow-border"
                   >
                     <SlideViewportNavigation
                       targetRef={slideViewportRef}
