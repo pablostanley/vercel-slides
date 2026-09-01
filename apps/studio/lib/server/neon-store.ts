@@ -663,26 +663,47 @@ export class NeonStudioStore implements StudioStore {
         notes: slide.notes,
       }));
       rows = await query(
-        `WITH authorized AS (
+        `WITH requested AS (
+           SELECT * FROM jsonb_to_recordset($4::jsonb) AS slide(
+             id text, position integer, master_slide_id text, master_version_id text,
+             schema_version integer, document_json jsonb, notes text
+           )
+         ), authorized AS (
            UPDATE decks d SET revision = revision + 1, updated_at = now()
            WHERE d.id = $1 AND d.revision = $2
              AND (d.owner_id = $3 OR EXISTS (
                SELECT 1 FROM deck_members WHERE deck_id = d.id AND user_id = $3 AND role = 'editor'
              ))
+             AND (SELECT count(DISTINCT id) FROM requested) = jsonb_array_length($4::jsonb)
+             AND NOT EXISTS (
+               SELECT 1 FROM requested
+               JOIN deck_slides existing ON existing.id = requested.id
+               WHERE existing.deck_id <> d.id
+             )
            RETURNING d.*
          ), removed AS (
-           DELETE FROM deck_slides WHERE deck_id IN (SELECT id FROM authorized)
+           DELETE FROM deck_slides ds
+           WHERE ds.deck_id IN (SELECT id FROM authorized)
+             AND NOT EXISTS (SELECT 1 FROM requested WHERE requested.id = ds.id)
          ), restored AS (
            INSERT INTO deck_slides(
              id, deck_id, position, master_slide_id, master_version_id,
              schema_version, document_json, notes
            )
-           SELECT slide.id, $1, slide.position, slide.master_slide_id, slide.master_version_id,
-             slide.schema_version, slide.document_json, slide.notes
-           FROM jsonb_to_recordset($4::jsonb) AS slide(
-             id text, position integer, master_slide_id text, master_version_id text,
-             schema_version integer, document_json jsonb, notes text
-           ) WHERE EXISTS (SELECT 1 FROM authorized)
+           SELECT requested.id, $1, requested.position, requested.master_slide_id,
+             requested.master_version_id, requested.schema_version,
+             requested.document_json, requested.notes
+           FROM requested WHERE EXISTS (SELECT 1 FROM authorized)
+           ON CONFLICT (id) DO UPDATE SET
+             position = EXCLUDED.position,
+             master_slide_id = EXCLUDED.master_slide_id,
+             master_version_id = EXCLUDED.master_version_id,
+             schema_version = EXCLUDED.schema_version,
+             document_json = EXCLUDED.document_json,
+             notes = EXCLUDED.notes,
+             revision = deck_slides.revision + 1,
+             updated_at = now()
+           WHERE deck_slides.deck_id = EXCLUDED.deck_id
          ), audit AS (
            INSERT INTO deck_revisions(deck_id, revision, operation, actor_id, payload)
            SELECT id, revision, 'restore-slides', $3, jsonb_build_object('slideCount', jsonb_array_length($4::jsonb))
