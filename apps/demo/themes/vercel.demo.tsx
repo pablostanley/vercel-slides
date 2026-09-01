@@ -7,7 +7,7 @@ export const design: DesignSystem = {
     display: "'Geist Sans', 'Geist', -apple-system, BlinkMacSystemFont, sans-serif",
     body: "'Geist Sans', 'Geist', -apple-system, BlinkMacSystemFont, sans-serif",
   },
-  typeScale: { hero: 152, body: 34 },
+  typeScale: { hero: 144, body: 32 },
   radius: 8,
 };
 
@@ -39,10 +39,10 @@ const Title = ({ children }: { children: ReactNode }) => (
       maxWidth: 1500,
       color: '#FFFFFF',
       fontFamily: "'Geist Sans', 'Geist', -apple-system, BlinkMacSystemFont, sans-serif",
-      fontSize: 152,
+      fontSize: 144,
       fontWeight: 600,
-      lineHeight: 0.96,
-      letterSpacing: '-0.055em',
+      lineHeight: 0.94,
+      letterSpacing: '-0.06em',
     }}
   >
     {children}
@@ -57,15 +57,16 @@ const Footer = ({ label = 'Vercel' }: { label?: string }) => {
         position: 'absolute',
         left: 120,
         right: 120,
-        bottom: 40,
+        bottom: 36,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         color: '#666666',
         fontFamily: "'Geist Mono', 'SFMono-Regular', Consolas, monospace",
-        fontSize: 18,
+        fontSize: 17,
         lineHeight: 1,
-        letterSpacing: '0.04em',
+        letterSpacing: '0.02em',
+        fontFeatureSettings: '"tnum" 1, "ss11" 1',
       }}
     >
       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 12 }}>
@@ -84,10 +85,10 @@ const Eyebrow = ({ children }: { children: ReactNode }) => (
     style={{
       color: '#A1A1A1',
       fontFamily: "'Geist Mono', 'SFMono-Regular', Consolas, monospace",
-      fontSize: 18,
+      fontSize: 19,
       fontWeight: 500,
       lineHeight: 1.2,
-      letterSpacing: '0.04em',
+      letterSpacing: '0.02em',
       textTransform: 'uppercase',
     }}
   >
@@ -115,8 +116,8 @@ const Cover: Page = () => (
           maxWidth: 1120,
           margin: 0,
           color: '#A1A1A1',
-          fontSize: 34,
-          lineHeight: 1.45,
+          fontSize: 32,
+          lineHeight: 1.4,
           letterSpacing: '-0.02em',
         }}
       >
@@ -160,15 +161,15 @@ const Content: Page = () => (
           marginTop: 56,
         }}
       >
-        <p style={{ margin: 0, fontSize: 34, lineHeight: 1.45, letterSpacing: '-0.02em' }}>
+        <p style={{ margin: 0, fontSize: 32, lineHeight: 1.4, letterSpacing: '-0.02em' }}>
           Lead with the claim. Keep the title direct enough to say out loud.
         </p>
         <p
           style={{
             margin: 0,
             color: '#A1A1A1',
-            fontSize: 34,
-            lineHeight: 1.45,
+            fontSize: 32,
+            lineHeight: 1.4,
             letterSpacing: '-0.02em',
           }}
         >

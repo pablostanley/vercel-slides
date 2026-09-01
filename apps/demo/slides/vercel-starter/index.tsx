@@ -1,4 +1,6 @@
+import geistMonoFont from '@assets/vercel/fonts/GeistMonoVF.woff2';
 import geistPixelFont from '@assets/vercel/fonts/GeistPixel-Square.woff2';
+import geistSansFont from '@assets/vercel/fonts/GeistVF.woff2';
 import lilPixEnter from '@assets/vercel/lil-pix/enter.gif';
 import lilPixWaving from '@assets/vercel/lil-pix/waving.gif';
 import aiGateway from '@assets/vercel/logos/ai-gateway-dark.svg';
@@ -42,7 +44,7 @@ export const design: DesignSystem = {
     display: "'Geist Sans', 'Geist', -apple-system, BlinkMacSystemFont, sans-serif",
     body: "'Geist Sans', 'Geist', -apple-system, BlinkMacSystemFont, sans-serif",
   },
-  typeScale: { hero: 152, body: 34 },
+  typeScale: { hero: 144, body: 32 },
   radius: 8,
 };
 
@@ -70,7 +72,11 @@ const FONT_STYLE_ID = 'osd-font-vercel-starter';
 if (typeof document !== 'undefined' && !document.getElementById(FONT_STYLE_ID)) {
   const style = document.createElement('style');
   style.id = FONT_STYLE_ID;
-  style.textContent = `@font-face { font-family: 'Geist Pixel'; src: url('${geistPixelFont}') format('woff2'); font-style: normal; font-weight: 400; font-display: swap; }`;
+  style.textContent = `
+@font-face { font-family: 'Geist Sans'; src: url('${geistSansFont}') format('woff2-variations'); font-style: normal; font-weight: 100 900; font-display: swap; }
+@font-face { font-family: 'Geist Mono'; src: url('${geistMonoFont}') format('woff2-variations'); font-style: normal; font-weight: 100 900; font-display: swap; }
+@font-face { font-family: 'Geist Pixel'; src: url('${geistPixelFont}') format('woff2'); font-style: normal; font-weight: 400; font-display: swap; }
+`;
   document.head.appendChild(style);
 }
 
@@ -94,6 +100,11 @@ const fill: CSSProperties = {
   background: 'var(--osd-bg)',
   color: 'var(--osd-text)',
   fontFamily: 'var(--osd-font-body)',
+  fontFeatureSettings: '"rlig" 1, "calt" 0, "ss11" 1',
+  fontKerning: 'normal',
+  fontOpticalSizing: 'auto',
+  textRendering: 'geometricPrecision',
+  WebkitFontSmoothing: 'antialiased',
 };
 
 const Footer = ({ label = 'Vercel presentation' }: { label?: string }) => {
@@ -104,16 +115,17 @@ const Footer = ({ label = 'Vercel presentation' }: { label?: string }) => {
         position: 'absolute',
         left: 120,
         right: 120,
-        bottom: 40,
+        bottom: 36,
         zIndex: 3,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         color: palette.faint,
         fontFamily: fonts.mono,
-        fontSize: 18,
+        fontSize: 17,
         lineHeight: 1,
-        letterSpacing: '0.04em',
+        letterSpacing: '0.02em',
+        fontFeatureSettings: '"tnum" 1, "ss11" 1',
       }}
     >
       <span>{label}</span>
@@ -130,10 +142,10 @@ const Brand = () => (
     alt="Vercel"
     style={{
       position: 'absolute',
-      top: 64,
+      top: 60,
       right: 120,
       zIndex: 3,
-      width: 150,
+      width: 144,
       height: 'auto',
     }}
   />
@@ -142,7 +154,7 @@ const Brand = () => (
 const SlideFrame = ({
   children,
   label,
-  padding = '112px 120px 96px',
+  padding = '112px 120px 88px',
   framed = false,
 }: {
   children: ReactNode;
@@ -192,10 +204,10 @@ const Eyebrow = ({ children, color = palette.muted }: { children: ReactNode; col
     style={{
       color,
       fontFamily: fonts.mono,
-      fontSize: 18,
+      fontSize: 19,
       fontWeight: 500,
       lineHeight: 1.2,
-      letterSpacing: '0.04em',
+      letterSpacing: '0.02em',
       textTransform: 'uppercase',
     }}
   >
@@ -208,10 +220,10 @@ const PageTitle = ({ children, width = 1450 }: { children: ReactNode; width?: nu
     style={{
       maxWidth: width,
       margin: 0,
-      fontSize: 72,
+      fontSize: 70,
       fontWeight: 600,
-      lineHeight: 1.08,
-      letterSpacing: '-0.04em',
+      lineHeight: 1.04,
+      letterSpacing: '-0.045em',
     }}
   >
     {children}
@@ -243,7 +255,7 @@ const Column = ({ index, title, body }: { index: string; title: string; body: st
     <h3
       style={{
         margin: '36px 0 0',
-        fontSize: 42,
+        fontSize: 40,
         fontWeight: 500,
         lineHeight: 1.15,
         letterSpacing: '-0.035em',
@@ -267,7 +279,15 @@ const Column = ({ index, title, body }: { index: string; title: string; body: st
 
 const Metric = ({ value, label, detail }: { value: string; label: string; detail?: string }) => (
   <div style={{ borderTop: `1px solid ${palette.hairline}`, paddingTop: 30 }}>
-    <div style={{ fontSize: 92, fontWeight: 600, lineHeight: 1, letterSpacing: '-0.06em' }}>
+    <div
+      style={{
+        fontSize: 88,
+        fontWeight: 600,
+        lineHeight: 0.96,
+        letterSpacing: '-0.065em',
+        fontFeatureSettings: '"tnum" 1, "ss11" 1',
+      }}
+    >
       {value}
     </div>
     <div style={{ marginTop: 24, fontSize: 28, fontWeight: 500 }}>{label}</div>
@@ -293,29 +313,29 @@ const Cover: Page = () => (
     <img
       src={vercelWordmark}
       alt="Vercel"
-      style={{ position: 'absolute', top: 64, left: 120, width: 166 }}
+      style={{ position: 'absolute', top: 60, left: 120, width: 150 }}
     />
     <div className="vercel-starter-enter">
       <Eyebrow>Internal presentation · 2026</Eyebrow>
       <h1
         style={{
-          maxWidth: 1500,
-          margin: '40px 0 0',
+          maxWidth: 1380,
+          margin: '36px 0 0',
           fontSize: 'var(--osd-size-hero)',
           fontWeight: 600,
-          lineHeight: 0.96,
-          letterSpacing: '-0.055em',
+          lineHeight: 0.94,
+          letterSpacing: '-0.06em',
         }}
       >
         Build what comes next.
       </h1>
       <p
         style={{
-          maxWidth: 1120,
-          margin: '48px 0 0',
+          maxWidth: 1040,
+          margin: '42px 0 0',
           color: palette.muted,
-          fontSize: 34,
-          lineHeight: 1.45,
+          fontSize: 32,
+          lineHeight: 1.4,
           letterSpacing: '-0.02em',
         }}
       >
@@ -327,10 +347,11 @@ const Cover: Page = () => (
       style={{
         position: 'absolute',
         left: 120,
-        bottom: 48,
+        bottom: 42,
         color: palette.faint,
         fontFamily: fonts.mono,
-        fontSize: 18,
+        fontSize: 17,
+        letterSpacing: '0.02em',
       }}
     >
       Prepared by [Team / Author]
@@ -353,22 +374,22 @@ const ProductCover: Page = () => (
     <img
       src={vercelWordmark}
       alt="Vercel"
-      style={{ position: 'absolute', top: 64, left: 120, width: 150 }}
+      style={{ position: 'absolute', top: 60, left: 120, width: 144 }}
     />
     <div className="vercel-starter-enter">
       <Eyebrow>Product update</Eyebrow>
       <h1
         style={{
           margin: '40px 0 0',
-          fontSize: 128,
+          fontSize: 116,
           fontWeight: 600,
-          lineHeight: 0.98,
-          letterSpacing: '-0.055em',
+          lineHeight: 0.96,
+          letterSpacing: '-0.06em',
         }}
       >
         The AI SDK for TypeScript.
       </h1>
-      <p style={{ margin: '44px 0 0', color: palette.muted, fontSize: 34, lineHeight: 1.45 }}>
+      <p style={{ margin: '40px 0 0', color: palette.muted, fontSize: 32, lineHeight: 1.4 }}>
         Build AI-powered products with one consistent API.
       </p>
     </div>
@@ -446,10 +467,10 @@ const SectionDivider: Page = () => (
         style={{
           maxWidth: 1380,
           margin: '44px 0 0',
-          fontSize: 112,
+          fontSize: 104,
           fontWeight: 600,
-          lineHeight: 1,
-          letterSpacing: '-0.055em',
+          lineHeight: 0.98,
+          letterSpacing: '-0.06em',
         }}
       >
         The opportunity
@@ -466,10 +487,10 @@ const Statement: Page = () => (
         style={{
           maxWidth: 1540,
           margin: 0,
-          fontSize: 104,
+          fontSize: 100,
           fontWeight: 600,
-          lineHeight: 1.03,
-          letterSpacing: '-0.052em',
+          lineHeight: 1.01,
+          letterSpacing: '-0.055em',
         }}
       >
         Iteration <em style={{ fontWeight: 500 }}>velocity</em> compounds into product quality.
@@ -488,8 +509,8 @@ const TitleAndBody: Page = () => (
         maxWidth: 1160,
         margin: 0,
         color: palette.muted,
-        fontSize: 36,
-        lineHeight: 1.5,
+        fontSize: 34,
+        lineHeight: 1.48,
         letterSpacing: '-0.025em',
       }}
     >
@@ -558,7 +579,7 @@ const ThreePillars: Page = () => (
 );
 
 const Quote: Page = () => (
-  <SlideFrame label="Quote" padding="112px 160px 96px">
+  <SlideFrame label="Quote" padding="112px 160px 88px">
     <div
       style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%' }}
     >
@@ -569,10 +590,10 @@ const Quote: Page = () => (
         style={{
           maxWidth: 1520,
           margin: '24px 0 0',
-          fontSize: 82,
+          fontSize: 78,
           fontWeight: 500,
-          lineHeight: 1.08,
-          letterSpacing: '-0.045em',
+          lineHeight: 1.06,
+          letterSpacing: '-0.05em',
         }}
       >
         The best platform work makes the hard path feel obvious.
@@ -591,10 +612,10 @@ const BigNumber: Page = () => (
       <div
         style={{
           marginTop: 40,
-          fontSize: 280,
+          fontSize: 264,
           fontWeight: 600,
-          lineHeight: 0.88,
-          letterSpacing: '-0.08em',
+          lineHeight: 0.86,
+          letterSpacing: '-0.085em',
         }}
       >
         4×
@@ -604,7 +625,7 @@ const BigNumber: Page = () => (
           maxWidth: 1120,
           margin: '56px 0 0',
           color: palette.muted,
-          fontSize: 38,
+          fontSize: 36,
           lineHeight: 1.35,
         }}
       >
@@ -639,7 +660,7 @@ const ComparisonSide = ({
 }) => (
   <div style={{ minHeight: 470, borderTop: `1px solid ${palette.hairline}`, paddingTop: 28 }}>
     <Eyebrow color={tone}>{title}</Eyebrow>
-    <div style={{ marginTop: 54, fontSize: 118, fontWeight: 600, letterSpacing: '-0.065em' }}>
+    <div style={{ marginTop: 54, fontSize: 108, fontWeight: 600, letterSpacing: '-0.07em' }}>
       {value}
     </div>
     <p
@@ -878,7 +899,7 @@ const DataRow = ({
       alignItems: 'center',
       minHeight: 92,
       borderTop: `1px solid ${palette.line}`,
-      fontSize: 27,
+      fontSize: 26,
     }}
   >
     <div>{metric}</div>
@@ -1207,6 +1228,659 @@ const Roadmap: Page = () => (
   </SlideFrame>
 );
 
+const LaunchReveal: Page = () => (
+  <div
+    style={{
+      ...fill,
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      padding: '96px 120px',
+    }}
+  >
+    <style>{animationStyles}</style>
+    <Brand />
+    <div className="vercel-starter-enter">
+      <Eyebrow>Product announcement</Eyebrow>
+      <img src={eve} alt="Eve" style={{ width: 620, maxHeight: 220, marginTop: 62 }} />
+      <h2
+        style={{
+          maxWidth: 1380,
+          margin: '72px 0 0',
+          fontSize: 86,
+          fontWeight: 600,
+          lineHeight: 1.02,
+          letterSpacing: '-0.05em',
+        }}
+      >
+        A framework for durable agents.
+      </h2>
+      <p
+        style={{
+          maxWidth: 980,
+          margin: '32px 0 0',
+          color: palette.muted,
+          fontSize: 30,
+          lineHeight: 1.4,
+          letterSpacing: '-0.02em',
+        }}
+      >
+        Introduce a product with its canonical mark, one sentence, and nothing competing for
+        attention.
+      </p>
+    </div>
+    <Footer label="Launch reveal" />
+  </div>
+);
+
+const PortraitFrame = ({ hint, label }: { hint: string; label?: string }) => (
+  <div
+    style={{
+      position: 'relative',
+      minHeight: 0,
+      overflow: 'hidden',
+      background: palette.surface,
+      border: `1px solid ${palette.hairline}`,
+    }}
+  >
+    <ImagePlaceholder hint={hint} />
+    {label ? (
+      <div
+        style={{
+          position: 'absolute',
+          left: 24,
+          bottom: 22,
+          color: '#FFFFFF',
+          fontFamily: fonts.mono,
+          fontSize: 16,
+          letterSpacing: '0.02em',
+        }}
+      >
+        {label}
+      </div>
+    ) : null}
+  </div>
+);
+
+const SessionTitle: Page = () => (
+  <div
+    style={{
+      ...fill,
+      display: 'grid',
+      gridTemplateColumns: '780px 1fr',
+      gap: 112,
+      padding: '96px 120px',
+    }}
+  >
+    <style>{animationStyles}</style>
+    <div
+      className="vercel-starter-enter"
+      style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}
+    >
+      <Eyebrow>Vercel Ship · Session opener</Eyebrow>
+      <h2
+        style={{
+          margin: '46px 0 0',
+          fontSize: 92,
+          fontWeight: 600,
+          lineHeight: 0.98,
+          letterSpacing: '-0.055em',
+        }}
+      >
+        Building the agentic ecosystem for developers.
+      </h2>
+      <div
+        style={{
+          marginTop: 54,
+          color: palette.muted,
+          fontFamily: fonts.mono,
+          fontSize: 24,
+          lineHeight: 1.45,
+          letterSpacing: '0.01em',
+          textTransform: 'uppercase',
+        }}
+      >
+        Name Surname, Vercel
+        <br />
+        Name Surname, Vercel
+      </div>
+    </div>
+    <div style={{ position: 'relative', display: 'grid', padding: '40px 0' }}>
+      <PortraitFrame hint="Speaker portrait, monochrome cutout on black" />
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          top: 0,
+          right: 64,
+          width: 10,
+          height: 92,
+          background: '#FFF',
+        }}
+      />
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          right: 0,
+          bottom: 0,
+          width: 10,
+          height: 132,
+          background: '#FFF',
+        }}
+      />
+    </div>
+  </div>
+);
+
+const TeamLineup: Page = () => (
+  <div style={{ ...fill, display: 'grid', gridTemplateColumns: '620px 1fr', gap: 84, padding: 96 }}>
+    <style>{animationStyles}</style>
+    <div
+      className="vercel-starter-enter"
+      style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}
+    >
+      <img src={vercelWordmark} alt="Vercel" style={{ width: 148, marginBottom: 74 }} />
+      <Eyebrow>Team introduction</Eyebrow>
+      <h2
+        style={{
+          margin: '34px 0 0',
+          fontSize: 74,
+          fontWeight: 500,
+          lineHeight: 1.02,
+          letterSpacing: '-0.05em',
+        }}
+      >
+        The people behind the work.
+      </h2>
+      <div style={{ marginTop: 48, color: palette.muted, fontSize: 28, lineHeight: 1.55 }}>
+        Name Surname, Role
+        <br />
+        Name Surname, Role
+        <br />
+        Name Surname, Role
+        <br />
+        Name Surname, Role
+      </div>
+    </div>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+      <PortraitFrame hint="Team member portrait, monochrome cutout" label="01" />
+      <PortraitFrame hint="Team member portrait, monochrome cutout" label="02" />
+      <PortraitFrame hint="Team member portrait, monochrome cutout" label="03" />
+      <PortraitFrame hint="Team member portrait, monochrome cutout" label="04" />
+    </div>
+  </div>
+);
+
+const CustomerStory: Page = () => (
+  <SlideFrame label="Customer story" padding="112px 120px 88px">
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 520px', gap: 120, height: '100%' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <div style={{ width: 260, height: 96, marginBottom: 64 }}>
+          <ImagePlaceholder hint="Customer logo, white or monochrome" width={260} height={96} />
+        </div>
+        <blockquote
+          style={{
+            maxWidth: 1040,
+            margin: 0,
+            fontSize: 68,
+            fontWeight: 500,
+            lineHeight: 1.08,
+            letterSpacing: '-0.045em',
+          }}
+        >
+          “Vercel gave every team one path from an idea to production.”
+        </blockquote>
+        <div style={{ marginTop: 42, color: palette.muted, fontSize: 26 }}>
+          Name Surname · Role, Company
+        </div>
+      </div>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          borderLeft: `1px solid ${palette.hairline}`,
+          paddingLeft: 72,
+        }}
+      >
+        <div
+          style={{ fontSize: 190, fontWeight: 600, lineHeight: 0.88, letterSpacing: '-0.075em' }}
+        >
+          7×
+        </div>
+        <p style={{ margin: '42px 0 0', color: palette.muted, fontSize: 30, lineHeight: 1.4 }}>
+          Faster iteration across product teams.
+        </p>
+      </div>
+    </div>
+  </SlideFrame>
+);
+
+const DataStory: Page = () => (
+  <SlideFrame label="Data story" padding="104px 120px 88px">
+    <Eyebrow>Illustrative trend</Eyebrow>
+    <div style={{ display: 'grid', gridTemplateColumns: '470px 1fr', gap: 80, marginTop: 54 }}>
+      <div>
+        <div
+          style={{ fontSize: 188, fontWeight: 500, lineHeight: 0.88, letterSpacing: '-0.075em' }}
+        >
+          2×+
+        </div>
+        <div style={{ marginTop: 34, color: palette.muted, fontSize: 30 }}>Agent workloads</div>
+      </div>
+      <div style={{ position: 'relative', height: 610 }}>
+        <svg
+          aria-label="Illustrative rising workload trend"
+          viewBox="0 0 1120 610"
+          style={{ width: '100%', height: '100%', overflow: 'visible' }}
+        >
+          <path
+            d="M20 540 L245 450 L430 382 L620 156 L790 280 L1000 104"
+            fill="none"
+            stroke="#FFFFFF"
+            strokeWidth="4"
+            vectorEffect="non-scaling-stroke"
+          />
+          <circle cx="20" cy="540" r="6" fill="#FFFFFF" />
+          <circle cx="1000" cy="104" r="6" fill="#FFFFFF" />
+        </svg>
+        <div
+          style={{
+            position: 'absolute',
+            right: 44,
+            top: 34,
+            fontFamily: fonts.mono,
+            fontSize: 17,
+            letterSpacing: '0.02em',
+          }}
+        >
+          TOKENS
+        </div>
+        <div
+          style={{
+            position: 'absolute',
+            left: 18,
+            bottom: 6,
+            color: palette.faint,
+            fontFamily: fonts.mono,
+            fontSize: 16,
+          }}
+        >
+          START
+        </div>
+      </div>
+    </div>
+  </SlideFrame>
+);
+
+const Decision: Page = () => (
+  <SlideFrame label="Decision" padding="112px 120px 88px">
+    <Eyebrow>Recommendation</Eyebrow>
+    <h2
+      style={{
+        maxWidth: 1540,
+        margin: '42px 0 0',
+        fontSize: 106,
+        fontWeight: 600,
+        lineHeight: 1,
+        letterSpacing: '-0.055em',
+      }}
+    >
+      Approve a six-week pilot with three product teams.
+    </h2>
+    <Rule margin="72px 0 40px" />
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 96 }}>
+      <Column
+        index="01"
+        title="Define success before kickoff"
+        body="Agree on adoption, iteration speed, and release confidence."
+      />
+      <Column
+        index="02"
+        title="Review evidence at week six"
+        body="Continue only when the complete workflow performs better."
+      />
+    </div>
+  </SlideFrame>
+);
+
+const PrincipleRow = ({
+  number,
+  title,
+  detail,
+}: {
+  number: string;
+  title: string;
+  detail: string;
+}) => (
+  <div
+    style={{
+      display: 'grid',
+      gridTemplateColumns: '110px 520px 1fr',
+      alignItems: 'baseline',
+      minHeight: 118,
+      padding: '28px 0',
+      borderTop: `1px solid ${palette.line}`,
+    }}
+  >
+    <div style={{ color: palette.faint, fontFamily: fonts.mono, fontSize: 19 }}>{number}</div>
+    <div style={{ fontSize: 34, fontWeight: 500, letterSpacing: '-0.025em' }}>{title}</div>
+    <div style={{ color: palette.muted, fontSize: 28, lineHeight: 1.4 }}>{detail}</div>
+  </div>
+);
+
+const Principles: Page = () => (
+  <SlideFrame label="Principles" padding="104px 120px 80px">
+    <Eyebrow>Operating principles</Eyebrow>
+    <PageTitle>Four rules keep the system clear.</PageTitle>
+    <div style={{ marginTop: 54 }}>
+      <PrincipleRow
+        number="01"
+        title="Start with the claim"
+        detail="Make the point legible before adding proof."
+      />
+      <PrincipleRow
+        number="02"
+        title="Show real evidence"
+        detail="Use verified product, customer, or operational signals."
+      />
+      <PrincipleRow
+        number="03"
+        title="Keep one owner"
+        detail="Every outcome has a person who can move it forward."
+      />
+      <PrincipleRow
+        number="04"
+        title="Close the loop"
+        detail="Bring the result back into the next decision."
+      />
+    </div>
+  </SlideFrame>
+);
+
+const RiskRow = ({ risk, response }: { risk: string; response: string }) => (
+  <div
+    style={{
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gap: 96,
+      minHeight: 150,
+      padding: '34px 0',
+      borderTop: `1px solid ${palette.line}`,
+    }}
+  >
+    <div style={{ fontSize: 34, fontWeight: 500, lineHeight: 1.25, letterSpacing: '-0.025em' }}>
+      {risk}
+    </div>
+    <div style={{ color: palette.muted, fontSize: 28, lineHeight: 1.45 }}>{response}</div>
+  </div>
+);
+
+const RiskRegister: Page = () => (
+  <SlideFrame label="Risks and responses" padding="104px 120px 80px">
+    <Eyebrow>What could break</Eyebrow>
+    <PageTitle>Make the risk and response equally visible.</PageTitle>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: 96,
+        marginTop: 54,
+        color: palette.faint,
+        fontFamily: fonts.mono,
+        fontSize: 17,
+        letterSpacing: '0.02em',
+      }}
+    >
+      <div>RISK</div>
+      <div>RESPONSE</div>
+    </div>
+    <RiskRow
+      risk="Adoption stops after the pilot"
+      response="Embed the workflow in one real launch with an accountable owner."
+    />
+    <RiskRow
+      risk="Automation hides critical context"
+      response="Keep approvals and system state explicit at every boundary."
+    />
+    <RiskRow
+      risk="Success cannot be measured"
+      response="Capture a baseline and instrument the complete path before kickoff."
+    />
+  </SlideFrame>
+);
+
+const OptionNode = ({
+  title,
+  note,
+  active = false,
+}: {
+  title: string;
+  note: string;
+  active?: boolean;
+}) => (
+  <div style={{ position: 'relative', paddingTop: 52 }}>
+    <div
+      style={{
+        position: 'absolute',
+        top: -10,
+        left: 0,
+        width: 20,
+        height: 20,
+        borderRadius: '50%',
+        background: active ? '#FFFFFF' : '#000000',
+        border: `2px solid ${active ? '#FFFFFF' : palette.hairline}`,
+      }}
+    />
+    <div style={{ fontSize: 38, fontWeight: 500, letterSpacing: '-0.03em' }}>{title}</div>
+    <p
+      style={{
+        maxWidth: 410,
+        margin: '20px 0 0',
+        color: palette.muted,
+        fontSize: 28,
+        lineHeight: 1.4,
+      }}
+    >
+      {note}
+    </p>
+    {active ? (
+      <div style={{ marginTop: 28, color: '#FFFFFF', fontFamily: fonts.mono, fontSize: 16 }}>
+        RECOMMENDED
+      </div>
+    ) : null}
+  </div>
+);
+
+const OptionSpectrum: Page = () => (
+  <SlideFrame label="Options" padding="112px 120px 88px">
+    <Eyebrow>Three paths</Eyebrow>
+    <PageTitle>Choose how much of the system to own.</PageTitle>
+    <div style={{ position: 'relative', marginTop: 110 }}>
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 1,
+          background: palette.hairline,
+        }}
+      />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 80 }}>
+        <OptionNode title="Build" note="Own every primitive and the complete operating burden." />
+        <OptionNode
+          title="Compose"
+          note="Use platform primitives and keep the differentiating layer."
+          active
+        />
+        <OptionNode title="Buy" note="Optimize for speed with less control over the system." />
+      </div>
+    </div>
+  </SlideFrame>
+);
+
+const ProgressStep = ({
+  number,
+  title,
+  status,
+}: {
+  number: string;
+  title: string;
+  status: string;
+}) => (
+  <div
+    style={{
+      display: 'grid',
+      gridTemplateColumns: '84px 1fr 160px',
+      alignItems: 'center',
+      minHeight: 120,
+      borderTop: `1px solid ${palette.line}`,
+    }}
+  >
+    <div style={{ color: palette.faint, fontFamily: fonts.mono, fontSize: 18 }}>{number}</div>
+    <div style={{ fontSize: 34, fontWeight: 500, letterSpacing: '-0.025em' }}>{title}</div>
+    <div
+      style={{
+        color: status === 'DONE' ? palette.green : palette.muted,
+        fontFamily: fonts.mono,
+        fontSize: 17,
+      }}
+    >
+      {status}
+    </div>
+  </div>
+);
+
+const ProgressRail: Page = () => (
+  <SlideFrame label="Progress" padding="112px 120px 88px">
+    <div style={{ display: 'grid', gridTemplateColumns: '520px 1fr', gap: 120, height: '100%' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <Eyebrow>Launch readiness</Eyebrow>
+        <div
+          style={{
+            marginTop: 44,
+            fontSize: 194,
+            fontWeight: 600,
+            lineHeight: 0.9,
+            letterSpacing: '-0.075em',
+          }}
+        >
+          72%
+        </div>
+        <p style={{ margin: '38px 0 0', color: palette.muted, fontSize: 30, lineHeight: 1.4 }}>
+          The critical path is clear. Two decisions remain.
+        </p>
+      </div>
+      <div style={{ alignSelf: 'center' }}>
+        <ProgressStep number="01" title="Problem framed" status="DONE" />
+        <ProgressStep number="02" title="Direction validated" status="DONE" />
+        <ProgressStep number="03" title="System integrated" status="IN REVIEW" />
+        <ProgressStep number="04" title="Launch approved" status="NEXT" />
+      </div>
+    </div>
+  </SlideFrame>
+);
+
+const PhotoQuote: Page = () => (
+  <div style={{ ...fill }}>
+    <style>{animationStyles}</style>
+    <div style={{ position: 'absolute', inset: 0 }}>
+      <ImagePlaceholder
+        hint="Full-bleed event, customer, or team photograph"
+        width={1920}
+        height={1080}
+      />
+    </div>
+    <div
+      style={{
+        position: 'absolute',
+        inset: '0 auto 0 0',
+        width: 800,
+        boxSizing: 'border-box',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        padding: '96px 120px',
+        background: 'rgba(0,0,0,0.92)',
+      }}
+    >
+      <Eyebrow>Customer voice</Eyebrow>
+      <blockquote
+        style={{
+          margin: '42px 0 0',
+          fontSize: 64,
+          fontWeight: 500,
+          lineHeight: 1.08,
+          letterSpacing: '-0.045em',
+        }}
+      >
+        “The platform disappeared. The product work accelerated.”
+      </blockquote>
+      <div style={{ marginTop: 44, color: palette.muted, fontSize: 25 }}>Name · Role, Company</div>
+    </div>
+  </div>
+);
+
+const UpdateColumn = ({ label, title, body }: { label: string; title: string; body: string }) => (
+  <div style={{ borderTop: `1px solid ${palette.hairline}`, paddingTop: 28 }}>
+    <div
+      style={{
+        color: palette.faint,
+        fontFamily: fonts.mono,
+        fontSize: 17,
+        letterSpacing: '0.02em',
+      }}
+    >
+      {label}
+    </div>
+    <h3
+      style={{
+        margin: '34px 0 0',
+        fontSize: 38,
+        fontWeight: 500,
+        lineHeight: 1.15,
+        letterSpacing: '-0.03em',
+      }}
+    >
+      {title}
+    </h3>
+    <p style={{ margin: '24px 0 0', color: palette.muted, fontSize: 28, lineHeight: 1.45 }}>
+      {body}
+    </p>
+  </div>
+);
+
+const TeamUpdate: Page = () => (
+  <SlideFrame label="Team update" padding="112px 120px 88px">
+    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+      <div>
+        <Eyebrow>Weekly update</Eyebrow>
+        <PageTitle>This week, the path got shorter.</PageTitle>
+      </div>
+      <div style={{ color: palette.faint, fontFamily: fonts.mono, fontSize: 24 }}>WEEK 18</div>
+    </div>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 56, marginTop: 94 }}>
+      <UpdateColumn
+        label="SHIPPED"
+        title="One-click project setup"
+        body="The first useful preview now appears in under two minutes."
+      />
+      <UpdateColumn
+        label="LEARNED"
+        title="Context matters most"
+        body="Teams move faster when product intent stays attached to the work."
+      />
+      <UpdateColumn
+        label="NEXT"
+        title="Close the release loop"
+        body="Bring approvals, evidence, and rollback into the same path."
+      />
+    </div>
+  </SlideFrame>
+);
+
 const ProductEcosystem: Page = () => (
   <SlideFrame label="Product ecosystem" padding="112px 120px 88px">
     <Eyebrow>Vercel products</Eyebrow>
@@ -1511,6 +2185,18 @@ export const notes: (string | undefined)[] = [
   undefined,
   undefined,
   undefined,
+  `[Sources]\nCanonical Eve mark: vercel/front@b0146c25ccd240c77d34264a95bd98a15eaa9c92, packages/geistcn-assets/src/__generated__/svgs/. Public layout references: https://vercel.com/ship/2024/session/opening-keynote and https://vercel.com/ship/ai.`,
+  `[Sources]\nPublic session-artwork reference: https://vercel.com/ship/ai/session/agent-marketplace-demo-showcase.`,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
   `[Sources]\nCanonical product marks: vercel/front@b0146c25ccd240c77d34264a95bd98a15eaa9c92, packages/geistcn-assets/src/__generated__/svgs/.`,
   `[Sources]\nCanonical wordmarks: vercel/front@b0146c25ccd240c77d34264a95bd98a15eaa9c92. FX glyph: apps/vercel-site/app/(dashboard)/components/dash-promotions/promos/fx-glm52-free.tsx at the same commit.`,
   `[Sources]\nCanonical product icons: vercel/front@b0146c25ccd240c77d34264a95bd98a15eaa9c92, packages/geistcn-assets/src/__generated__/svgs/icons/logo/.`,
@@ -1544,6 +2230,18 @@ export default [
   FullBleedImage,
   Architecture,
   Roadmap,
+  LaunchReveal,
+  SessionTitle,
+  TeamLineup,
+  CustomerStory,
+  DataStory,
+  Decision,
+  Principles,
+  RiskRegister,
+  OptionSpectrum,
+  ProgressRail,
+  PhotoQuote,
+  TeamUpdate,
   ProductEcosystem,
   WordmarkGallery,
   IconGallery,
