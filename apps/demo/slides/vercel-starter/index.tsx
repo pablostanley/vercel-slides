@@ -68,6 +68,14 @@ const fonts = {
   pixel: "'Geist Pixel', 'Geist Mono', monospace",
 };
 
+const layout = {
+  inset: 120,
+  brandTop: 60,
+  footerBottom: 36,
+  contentTop: 112,
+  contentBottom: 88,
+};
+
 const FONT_STYLE_ID = 'osd-font-vercel-starter';
 if (typeof document !== 'undefined' && !document.getElementById(FONT_STYLE_ID)) {
   const style = document.createElement('style');
@@ -113,9 +121,9 @@ const Footer = ({ label = 'Vercel presentation' }: { label?: string }) => {
     <div
       style={{
         position: 'absolute',
-        left: 120,
-        right: 120,
-        bottom: 36,
+        left: layout.inset,
+        right: layout.inset,
+        bottom: layout.footerBottom,
         zIndex: 3,
         display: 'flex',
         alignItems: 'center',
@@ -136,14 +144,14 @@ const Footer = ({ label = 'Vercel presentation' }: { label?: string }) => {
   );
 };
 
-const Brand = () => (
+const Brand = ({ placement = 'right' }: { placement?: 'left' | 'right' }) => (
   <img
     src={vercelWordmark}
     alt="Vercel"
     style={{
       position: 'absolute',
-      top: 60,
-      right: 120,
+      top: layout.brandTop,
+      ...(placement === 'left' ? { left: layout.inset } : { right: layout.inset }),
       zIndex: 3,
       width: 144,
       height: 'auto',
@@ -154,7 +162,7 @@ const Brand = () => (
 const SlideFrame = ({
   children,
   label,
-  padding = '112px 120px 88px',
+  padding = `${layout.contentTop}px ${layout.inset}px ${layout.contentBottom}px`,
   framed = false,
 }: {
   children: ReactNode;
@@ -181,21 +189,80 @@ const FrameGrid = () => (
     aria-hidden
     style={{
       position: 'absolute',
-      inset: 0,
-      backgroundImage:
-        'linear-gradient(#1F1F1F 1px, transparent 1px), linear-gradient(90deg, #1F1F1F 1px, transparent 1px)',
-      backgroundSize: '120px 120px',
-      opacity: 0.72,
+      inset: layout.inset,
+      border: `1px solid ${palette.line}`,
     }}
   >
-    <div
-      style={{
-        position: 'absolute',
-        inset: 120,
-        background: '#000000',
-        border: `1px solid ${palette.line}`,
-      }}
-    />
+    <CornerMark position="top-left" />
+    <CornerMark position="top-right" />
+    <CornerMark position="bottom-left" />
+    <CornerMark position="bottom-right" />
+  </div>
+);
+
+const CornerMark = ({
+  position,
+}: {
+  position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+}) => {
+  const vertical = position.startsWith('top') ? { top: -11 } : { bottom: -11 };
+  const horizontal = position.endsWith('left') ? { left: -11 } : { right: -11 };
+  return (
+    <div style={{ position: 'absolute', width: 21, height: 21, ...vertical, ...horizontal }}>
+      <div
+        style={{
+          position: 'absolute',
+          top: 10,
+          left: 0,
+          width: 21,
+          height: 1,
+          background: palette.faint,
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 10,
+          width: 1,
+          height: 21,
+          background: palette.faint,
+        }}
+      />
+    </div>
+  );
+};
+
+const PartnerLogo = () => (
+  <div
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: 152,
+      height: 54,
+      border: `1px solid ${palette.hairline}`,
+      color: palette.muted,
+      fontFamily: fonts.mono,
+      fontSize: 14,
+      letterSpacing: '0.04em',
+    }}
+  >
+    PARTNER
+  </div>
+);
+
+const PartnerBrandRail = ({ compact = false }: { compact?: boolean }) => (
+  <div
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: compact ? 16 : 24,
+    }}
+  >
+    <PartnerLogo />
+    <span style={{ color: palette.faint, fontFamily: fonts.mono, fontSize: 22 }}>+</span>
+    <img src={vercelWordmark} alt="Vercel" style={{ width: compact ? 126 : 150 }} />
   </div>
 );
 
@@ -310,11 +377,7 @@ const Cover: Page = () => (
     }}
   >
     <style>{animationStyles}</style>
-    <img
-      src={vercelWordmark}
-      alt="Vercel"
-      style={{ position: 'absolute', top: 60, left: 120, width: 150 }}
-    />
+    <Brand placement="left" />
     <div className="vercel-starter-enter">
       <Eyebrow>Internal presentation · 2026</Eyebrow>
       <h1
@@ -343,19 +406,7 @@ const Cover: Page = () => (
         presentations.
       </p>
     </div>
-    <div
-      style={{
-        position: 'absolute',
-        left: 120,
-        bottom: 42,
-        color: palette.faint,
-        fontFamily: fonts.mono,
-        fontSize: 17,
-        letterSpacing: '0.02em',
-      }}
-    >
-      Prepared by [Team / Author]
-    </div>
+    <Footer label="Prepared by [Team / Author]" />
   </div>
 );
 
@@ -371,11 +422,7 @@ const ProductCover: Page = () => (
     }}
   >
     <style>{animationStyles}</style>
-    <img
-      src={vercelWordmark}
-      alt="Vercel"
-      style={{ position: 'absolute', top: 60, left: 120, width: 144 }}
-    />
+    <Brand placement="left" />
     <div className="vercel-starter-enter">
       <Eyebrow>Product update</Eyebrow>
       <h1
@@ -404,6 +451,7 @@ const ProductCover: Page = () => (
     >
       <img src={aiSdk} alt="AI SDK" style={{ width: 420, maxHeight: 220 }} />
     </div>
+    <Footer label="Product cover" />
   </div>
 );
 
@@ -1881,6 +1929,1175 @@ const TeamUpdate: Page = () => (
   </SlideFrame>
 );
 
+const MotifPanel = ({ compact = false }: { compact?: boolean }) => (
+  <div
+    aria-hidden
+    style={{
+      position: 'relative',
+      width: compact ? 520 : 720,
+      height: compact ? 520 : 720,
+      border: `1px solid ${palette.hairline}`,
+      backgroundImage:
+        'linear-gradient(90deg, transparent calc(50% - 0.5px), #333 50%, transparent calc(50% + 0.5px)), linear-gradient(transparent calc(50% - 0.5px), #333 50%, transparent calc(50% + 0.5px))',
+    }}
+  >
+    <div
+      style={{
+        position: 'absolute',
+        inset: compact ? 84 : 118,
+        border: `1px solid ${palette.hairline}`,
+        transform: 'rotate(45deg)',
+      }}
+    />
+    <div
+      style={{
+        position: 'absolute',
+        top: '25%',
+        left: '25%',
+        width: '50%',
+        height: '50%',
+        border: `1px solid ${palette.hairline}`,
+        borderRadius: '50%',
+      }}
+    />
+    <div
+      style={{
+        position: 'absolute',
+        left: '50%',
+        top: '50%',
+        width: 14,
+        height: 14,
+        background: '#FFFFFF',
+        transform: 'translate(-50%, -50%) rotate(45deg)',
+      }}
+    />
+  </div>
+);
+
+const Presenter = ({ name, affiliation }: { name: string; affiliation: string }) => (
+  <div style={{ borderTop: `1px solid ${palette.hairline}`, paddingTop: 18 }}>
+    <div style={{ fontSize: 24, fontWeight: 500 }}>{name}</div>
+    <div style={{ marginTop: 8, color: palette.muted, fontSize: 18 }}>{affiliation}</div>
+  </div>
+);
+
+const ExecutiveCover: Page = () => (
+  <div style={{ ...fill, padding: layout.inset }}>
+    <style>{animationStyles}</style>
+    <FrameGrid />
+    <div style={{ position: 'absolute', top: 96, left: layout.inset, zIndex: 3 }}>
+      <PartnerBrandRail />
+    </div>
+    <div
+      className="vercel-starter-enter"
+      style={{
+        position: 'relative',
+        zIndex: 2,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'flex-end',
+        height: '100%',
+        padding: '0 72px 120px',
+        boxSizing: 'border-box',
+      }}
+    >
+      <Eyebrow>Executive meeting · 2026</Eyebrow>
+      <h1
+        style={{
+          maxWidth: 1460,
+          margin: '32px 0 0',
+          fontSize: 108,
+          fontWeight: 600,
+          lineHeight: 0.96,
+          letterSpacing: '-0.058em',
+        }}
+      >
+        Building the partnership together.
+      </h1>
+      <div
+        style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 48, marginTop: 68 }}
+      >
+        <Presenter name="Name Surname" affiliation="Role · Vercel" />
+        <Presenter name="Name Surname" affiliation="Role · Partner" />
+        <Presenter name="Name Surname" affiliation="Role · Vercel" />
+      </div>
+    </div>
+    <Footer label="Vercel × Partner" />
+  </div>
+);
+
+const VisualAgenda: Page = () => (
+  <SlideFrame label="Visual agenda" padding="112px 120px 88px">
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 660px', gap: 110, height: '100%' }}>
+      <div>
+        <Eyebrow>Today</Eyebrow>
+        <PageTitle width={820}>The conversation in four moves.</PageTitle>
+        <div style={{ marginTop: 56 }}>
+          <ProcessStep
+            number="01"
+            title="Shared context"
+            body="Where the partnership stands now."
+          />
+          <ProcessStep number="02" title="Value creation" body="What becomes possible together." />
+          <ProcessStep
+            number="03"
+            title="Operating model"
+            body="How the work moves across teams."
+          />
+          <ProcessStep number="04" title="Decisions" body="What needs an owner before we leave." />
+        </div>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <MotifPanel compact />
+      </div>
+    </div>
+  </SlideFrame>
+);
+
+const RosterCard = ({ index }: { index: string }) => (
+  <div style={{ display: 'grid', gridTemplateRows: '1fr auto', minHeight: 0 }}>
+    <div style={{ minHeight: 0, background: palette.surface, border: `1px solid ${palette.line}` }}>
+      <ImagePlaceholder hint="Monochrome team portrait" />
+    </div>
+    <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 14 }}>
+      <div style={{ fontSize: 20, fontWeight: 500 }}>Name Surname</div>
+      <div style={{ color: palette.faint, fontFamily: fonts.mono, fontSize: 15 }}>{index}</div>
+    </div>
+  </div>
+);
+
+const PresenterRoster: Page = () => (
+  <SlideFrame label="Introductions" padding="96px 120px 78px" framed>
+    <div style={{ display: 'grid', gridTemplateRows: 'auto 1fr', height: '100%' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+        <div>
+          <Eyebrow>Introductions</Eyebrow>
+          <PageTitle>The room, at a glance.</PageTitle>
+        </div>
+        <div style={{ color: palette.faint, fontFamily: fonts.mono, fontSize: 18 }}>03 × 03</div>
+      </div>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gridTemplateRows: 'repeat(3, 1fr)',
+          gap: '28px 36px',
+          minHeight: 0,
+          marginTop: 44,
+        }}
+      >
+        <RosterCard index="01" />
+        <RosterCard index="02" />
+        <RosterCard index="03" />
+        <RosterCard index="04" />
+        <RosterCard index="05" />
+        <RosterCard index="06" />
+        <RosterCard index="07" />
+        <RosterCard index="08" />
+        <RosterCard index="09" />
+      </div>
+    </div>
+  </SlideFrame>
+);
+
+const PartnershipStream: Page = () => (
+  <div style={{ ...fill, padding: layout.inset }}>
+    <style>{animationStyles}</style>
+    <FrameGrid />
+    <div
+      className="vercel-starter-enter"
+      style={{
+        position: 'relative',
+        zIndex: 2,
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        height: '100%',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <MotifPanel compact />
+      </div>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          padding: '0 72px',
+          borderLeft: `1px solid ${palette.line}`,
+        }}
+      >
+        <PartnerBrandRail compact />
+        <h2
+          style={{
+            margin: '132px 0 0',
+            fontSize: 82,
+            fontWeight: 600,
+            lineHeight: 1.02,
+            letterSpacing: '-0.05em',
+          }}
+        >
+          Partnership
+          <br />
+          Streams
+        </h2>
+        <div style={{ marginTop: 6, color: palette.line, fontSize: 58, fontWeight: 600 }}>
+          2026 partnership
+        </div>
+      </div>
+    </div>
+    <Footer label="Partnership streams" />
+  </div>
+);
+
+const WorkstreamCell = ({
+  number,
+  title,
+  owner,
+  partner,
+}: {
+  number: string;
+  title: string;
+  owner: string;
+  partner: string;
+}) => (
+  <div style={{ minHeight: 500, borderTop: `1px solid ${palette.hairline}`, paddingTop: 24 }}>
+    <div style={{ color: palette.faint, fontFamily: fonts.mono, fontSize: 17 }}>{number}</div>
+    <h3
+      style={{
+        margin: '30px 0 0',
+        fontSize: 32,
+        fontWeight: 500,
+        lineHeight: 1.14,
+        letterSpacing: '-0.03em',
+      }}
+    >
+      {title}
+    </h3>
+    <div style={{ marginTop: 64, color: palette.faint, fontFamily: fonts.mono, fontSize: 15 }}>
+      OWNER
+    </div>
+    <div style={{ marginTop: 12, fontSize: 22 }}>{owner}</div>
+    <div style={{ marginTop: 40, color: palette.faint, fontFamily: fonts.mono, fontSize: 15 }}>
+      PARTNER MODEL
+    </div>
+    <div style={{ marginTop: 12, color: palette.muted, fontSize: 20, lineHeight: 1.35 }}>
+      {partner}
+    </div>
+  </div>
+);
+
+const WorkstreamMatrix: Page = () => (
+  <SlideFrame label="Workstream matrix" padding="104px 120px 80px">
+    <Eyebrow>Joint operating model</Eyebrow>
+    <PageTitle width={1240}>Five streams. One accountable system.</PageTitle>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 32, marginTop: 58 }}>
+      <WorkstreamCell
+        number="01"
+        title="Platform integration"
+        owner="Name · Product"
+        partner="Joint build and technical validation"
+      />
+      <WorkstreamCell
+        number="02"
+        title="Customer experience"
+        owner="Name · GTM"
+        partner="Shared discovery and solution design"
+      />
+      <WorkstreamCell
+        number="03"
+        title="Field enablement"
+        owner="Name · Sales"
+        partner="Narrative, training, and deal support"
+      />
+      <WorkstreamCell
+        number="04"
+        title="Marketplace"
+        owner="Name · BD"
+        partner="Commercial model and launch path"
+      />
+      <WorkstreamCell
+        number="05"
+        title="Executive rhythm"
+        owner="Name · Exec"
+        partner="Monthly decisions and escalation"
+      />
+    </div>
+  </SlideFrame>
+);
+
+const HistoryColumn = ({
+  year,
+  title,
+  line1,
+  line2,
+  line3,
+}: {
+  year: string;
+  title: string;
+  line1: string;
+  line2: string;
+  line3: string;
+}) => (
+  <div style={{ minHeight: 540, padding: '44px 54px', borderLeft: `1px solid ${palette.line}` }}>
+    <div
+      style={{
+        display: 'inline-flex',
+        padding: '8px 24px',
+        border: `1px solid ${palette.muted}`,
+        borderRadius: 8,
+        fontFamily: fonts.mono,
+        fontSize: 18,
+      }}
+    >
+      {year}
+    </div>
+    <h3 style={{ margin: '16px 0 0', fontSize: 32, fontWeight: 600, lineHeight: 1.1 }}>{title}</h3>
+    <div
+      style={{
+        display: 'grid',
+        gap: 26,
+        marginTop: 58,
+        color: palette.muted,
+        fontSize: 21,
+        lineHeight: 1.4,
+      }}
+    >
+      <div>{line1}</div>
+      <div>{line2}</div>
+      <div>{line3}</div>
+    </div>
+  </div>
+);
+
+const PartnershipHistory: Page = () => (
+  <SlideFrame label="Partnership history" padding="96px 120px 80px" framed>
+    <PageTitle>Partnership history</PageTitle>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        marginTop: 48,
+        borderTop: `1px solid ${palette.line}`,
+        borderRight: `1px solid ${palette.line}`,
+      }}
+    >
+      <HistoryColumn
+        year="2024"
+        title="Found the fit"
+        line1="First customer motion"
+        line2="Reference architecture"
+        line3="Initial partner enablement"
+      />
+      <HistoryColumn
+        year="2025"
+        title="Built advocacy"
+        line1="Field validation"
+        line2="Joint value proposition"
+        line3="Mutual account planning"
+      />
+      <HistoryColumn
+        year="2026"
+        title="Scale the model"
+        line1="Executive sponsorship"
+        line2="Global co-sell motion"
+        line3="Measurable customer outcomes"
+      />
+    </div>
+  </SlideFrame>
+);
+
+const StatusColumn = ({
+  label,
+  title,
+  body,
+  tone = '#FFFFFF',
+}: {
+  label: string;
+  title: string;
+  body: ReactNode;
+  tone?: string;
+}) => (
+  <div style={{ minHeight: 540, padding: '36px 54px', borderLeft: `1px solid ${palette.line}` }}>
+    <div
+      style={{
+        display: 'inline-flex',
+        padding: '8px 18px',
+        border: `1px solid ${palette.muted}`,
+        borderRadius: 8,
+        fontFamily: fonts.mono,
+        fontSize: 16,
+      }}
+    >
+      {label}
+    </div>
+    <h3
+      style={{ margin: '12px 0 0', color: tone, fontSize: 34, fontWeight: 600, lineHeight: 1.12 }}
+    >
+      {title}
+    </h3>
+    <div style={{ marginTop: 54, color: palette.muted, fontSize: 22, lineHeight: 1.45 }}>
+      {body}
+    </div>
+  </div>
+);
+
+const StatusTriptych: Page = () => (
+  <SlideFrame label="Partnership status" padding="96px 120px 80px" framed>
+    <PageTitle>Partnership status</PageTitle>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        marginTop: 48,
+        borderTop: `1px solid ${palette.line}`,
+        borderRight: `1px solid ${palette.line}`,
+      }}
+    >
+      <StatusColumn
+        label="CUSTOMERS"
+        title="Proof across key verticals"
+        body="Customer logo wall or a compact list of named references."
+      />
+      <StatusColumn
+        label="PIPELINE"
+        title="$XM across XX accounts"
+        body="Show the pipeline shape, stage, and the next forcing function."
+        tone={palette.green}
+      />
+      <StatusColumn
+        label="RISKS"
+        title="Ownership still needs clarity"
+        body="Name the unresolved boundary and the decision required to remove it."
+        tone={palette.amber}
+      />
+    </div>
+    <div
+      style={{
+        position: 'absolute',
+        left: layout.inset,
+        right: layout.inset,
+        bottom: 78,
+        zIndex: 2,
+        padding: '18px 54px',
+        border: `1px solid ${palette.line}`,
+        fontFamily: fonts.mono,
+        fontSize: 17,
+        lineHeight: 1.4,
+      }}
+    >
+      DISCUSSION · What needs to be true for this partnership to scale?
+    </div>
+  </SlideFrame>
+);
+
+const EvidenceMetric = ({ value, label }: { value: string; label: string }) => (
+  <div style={{ borderTop: `1px solid ${palette.hairline}`, paddingTop: 22 }}>
+    <div
+      style={{
+        fontSize: 56,
+        fontWeight: 600,
+        lineHeight: 1,
+        letterSpacing: '-0.055em',
+        fontFeatureSettings: '"tnum" 1, "ss11" 1',
+      }}
+    >
+      {value}
+    </div>
+    <div style={{ marginTop: 12, color: palette.muted, fontSize: 18, lineHeight: 1.35 }}>
+      {label}
+    </div>
+  </div>
+);
+
+const ProofCollage: Page = () => (
+  <SlideFrame label="Partnership proof" padding="104px 120px 80px">
+    <div style={{ display: 'grid', gridTemplateColumns: '640px 1fr', gap: 96, height: '100%' }}>
+      <div>
+        <Eyebrow>Partnership proof</Eyebrow>
+        <PageTitle width={620}>Make the evidence impossible to miss.</PageTitle>
+        <div style={{ height: 420, marginTop: 54, background: palette.surface }}>
+          <ImagePlaceholder hint="Partnership hero or customer collage" />
+        </div>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+        <h3
+          style={{
+            maxWidth: 780,
+            margin: 0,
+            fontSize: 44,
+            fontWeight: 500,
+            lineHeight: 1.14,
+            letterSpacing: '-0.035em',
+          }}
+        >
+          One claim, five signals, and one image that makes the partnership tangible.
+        </h3>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '42px 32px',
+            marginTop: 72,
+          }}
+        >
+          <EvidenceMetric value="$XM" label="Joint pipeline" />
+          <EvidenceMetric value="XX" label="Shared accounts" />
+          <EvidenceMetric value="X×" label="Faster launch" />
+          <EvidenceMetric value="XX%" label="Partner-sourced" />
+          <EvidenceMetric value="XX" label="Customer proofs" />
+        </div>
+      </div>
+    </div>
+  </SlideFrame>
+);
+
+const MetricHorizon: Page = () => (
+  <SlideFrame label="Metric horizon" padding="104px 120px 80px">
+    <Eyebrow>Illustrative growth</Eyebrow>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '700px 1fr',
+        gap: 96,
+        alignItems: 'end',
+        marginTop: 60,
+      }}
+    >
+      <div>
+        <div
+          style={{
+            fontSize: 238,
+            fontWeight: 600,
+            lineHeight: 0.8,
+            letterSpacing: '-0.085em',
+            fontFeatureSettings: '"tnum" 1, "ss11" 1',
+          }}
+        >
+          $XM
+        </div>
+        <div style={{ marginTop: 44, color: palette.muted, fontSize: 32 }}>
+          Annual platform opportunity
+        </div>
+      </div>
+      <p style={{ maxWidth: 760, margin: 0, color: palette.muted, fontSize: 30, lineHeight: 1.45 }}>
+        Use a large horizon slide when the size of the opportunity matters more than the mechanics.
+      </p>
+    </div>
+    <div
+      style={{ position: 'relative', marginTop: 128, borderTop: `1px solid ${palette.hairline}` }}
+    >
+      <div
+        style={{
+          position: 'absolute',
+          top: -3,
+          left: 0,
+          width: '74%',
+          height: 5,
+          background: '#FFFFFF',
+        }}
+      />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', paddingTop: 28 }}>
+        <div style={{ fontFamily: fonts.mono, fontSize: 18 }}>2025 · BASE</div>
+        <div style={{ fontFamily: fonts.mono, fontSize: 18 }}>2026 · PROVE</div>
+        <div style={{ fontFamily: fonts.mono, fontSize: 18 }}>2027 · SCALE</div>
+        <div style={{ color: palette.faint, fontFamily: fonts.mono, fontSize: 18 }}>
+          2028 · EXPAND
+        </div>
+      </div>
+    </div>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 74, marginTop: 70, opacity: 0.74 }}>
+      <img src={nextjs} alt="Next.js" style={{ width: 190 }} />
+      <img src={aiSdk} alt="AI SDK" style={{ width: 150 }} />
+      <img src={v0} alt="v0" style={{ width: 120 }} />
+      <img src={workflow} alt="Workflow" style={{ width: 165 }} />
+    </div>
+  </SlideFrame>
+);
+
+const BridgePillar = ({
+  number,
+  title,
+  detail,
+}: {
+  number: string;
+  title: string;
+  detail: string;
+}) => (
+  <div style={{ borderLeft: `1px solid ${palette.line}`, padding: '32px 34px', minHeight: 300 }}>
+    <div style={{ color: palette.faint, fontFamily: fonts.mono, fontSize: 16 }}>{number}</div>
+    <h3 style={{ margin: '38px 0 0', fontSize: 30, fontWeight: 500, lineHeight: 1.15 }}>{title}</h3>
+    <p style={{ margin: '20px 0 0', color: palette.muted, fontSize: 20, lineHeight: 1.4 }}>
+      {detail}
+    </p>
+  </div>
+);
+
+const ValueBridge: Page = () => (
+  <SlideFrame label="Value bridge" padding="104px 120px 80px">
+    <Eyebrow>Consumption model</Eyebrow>
+    <PageTitle width={1390}>Every investment should unlock four compounding effects.</PageTitle>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '1.5fr repeat(4, 1fr)',
+        marginTop: 66,
+        borderTop: `1px solid ${palette.line}`,
+        borderRight: `1px solid ${palette.line}`,
+      }}
+    >
+      <div style={{ padding: '32px 44px' }}>
+        <div style={{ fontSize: 118, fontWeight: 600, lineHeight: 0.9, letterSpacing: '-0.065em' }}>
+          $1
+        </div>
+        <div style={{ marginTop: 24, color: palette.muted, fontSize: 22, lineHeight: 1.4 }}>
+          Place the core input or investment here.
+        </div>
+      </div>
+      <BridgePillar number="01" title="Developers" detail="More teams building on the platform." />
+      <BridgePillar number="02" title="Workloads" detail="More production paths and use cases." />
+      <BridgePillar number="03" title="Consumption" detail="More infrastructure value captured." />
+      <BridgePillar number="04" title="Evidence" detail="More customer proof feeding the loop." />
+    </div>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '1.5fr 4fr',
+        border: `1px solid ${palette.line}`,
+        borderTop: 0,
+      }}
+    >
+      <div
+        style={{ padding: '22px 44px', color: palette.faint, fontFamily: fonts.mono, fontSize: 16 }}
+      >
+        THE BRIDGE
+      </div>
+      <div style={{ padding: '22px 34px', color: palette.muted, fontSize: 21 }}>
+        Explain what makes the four effects reinforce one another.
+      </div>
+    </div>
+  </SlideFrame>
+);
+
+const GridStep = ({ number, title, detail }: { number: string; title: string; detail: string }) => (
+  <div style={{ minHeight: 230, padding: 30, borderTop: `1px solid ${palette.hairline}` }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ color: palette.faint, fontFamily: fonts.mono, fontSize: 16 }}>{number}</div>
+      <div style={{ width: 10, height: 10, background: '#FFFFFF' }} />
+    </div>
+    <h3 style={{ margin: '42px 0 0', fontSize: 30, fontWeight: 500 }}>{title}</h3>
+    <p style={{ margin: '16px 0 0', color: palette.muted, fontSize: 20, lineHeight: 1.4 }}>
+      {detail}
+    </p>
+  </div>
+);
+
+const SixStepGrid: Page = () => (
+  <SlideFrame label="Six-step process" padding="104px 120px 80px">
+    <Eyebrow>Joint process</Eyebrow>
+    <PageTitle width={1320}>A complete motion, without the handoff gaps.</PageTitle>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: '34px 40px',
+        marginTop: 58,
+      }}
+    >
+      <GridStep number="01" title="Discover" detail="Find the shared customer problem." />
+      <GridStep number="02" title="Qualify" detail="Confirm fit, urgency, and ownership." />
+      <GridStep number="03" title="Design" detail="Create the joint technical path." />
+      <GridStep number="04" title="Prove" detail="Validate with one real workload." />
+      <GridStep number="05" title="Launch" detail="Enable the field and release together." />
+      <GridStep number="06" title="Expand" detail="Turn evidence into the next account." />
+    </div>
+  </SlideFrame>
+);
+
+const CaseStage = ({ label, text }: { label: string; text: string }) => (
+  <div
+    style={{
+      display: 'grid',
+      gridTemplateColumns: '120px 1fr',
+      gap: 20,
+      padding: '22px 0',
+      borderTop: `1px solid ${palette.line}`,
+    }}
+  >
+    <div style={{ color: palette.faint, fontFamily: fonts.mono, fontSize: 15 }}>{label}</div>
+    <div style={{ fontSize: 23, lineHeight: 1.35 }}>{text}</div>
+  </div>
+);
+
+const CaseStudyEvidence: Page = () => (
+  <SlideFrame label="Customer evidence" padding="104px 120px 80px">
+    <div style={{ display: 'grid', gridTemplateColumns: '650px 1fr', gap: 86, height: '100%' }}>
+      <div>
+        <div style={{ width: 220, height: 70 }}>
+          <ImagePlaceholder hint="Customer logo" width={220} height={70} />
+        </div>
+        <h2
+          style={{
+            margin: '44px 0 0',
+            fontSize: 64,
+            fontWeight: 600,
+            lineHeight: 1.02,
+            letterSpacing: '-0.045em',
+          }}
+        >
+          From fragmented workflow to one production path.
+        </h2>
+        <div style={{ marginTop: 54 }}>
+          <CaseStage label="BEFORE" text="Teams waited on disconnected reviews and environments." />
+          <CaseStage label="CHOICE" text="One platform connected preview, evidence, and release." />
+          <CaseStage
+            label="AFTER"
+            text="More iterations reached customers with less operating load."
+          />
+        </div>
+      </div>
+      <div style={{ display: 'grid', gridTemplateRows: '1fr auto', minHeight: 0 }}>
+        <div
+          style={{
+            minHeight: 0,
+            background: palette.surface,
+            border: `1px solid ${palette.hairline}`,
+          }}
+        >
+          <ImagePlaceholder hint="Customer product screenshot or workflow evidence" />
+        </div>
+        <div
+          style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 28, marginTop: 34 }}
+        >
+          <EvidenceMetric value="X×" label="Iteration speed" />
+          <EvidenceMetric value="XX%" label="Adoption" />
+          <EvidenceMetric value="XXm" label="Time saved" />
+        </div>
+      </div>
+    </div>
+  </SlideFrame>
+);
+
+const TrendPanel = ({
+  title,
+  value,
+  active = false,
+}: {
+  title: string;
+  value: string;
+  active?: boolean;
+}) => (
+  <div
+    style={{
+      minHeight: 470,
+      padding: 32,
+      borderTop: `1px solid ${active ? '#FFFFFF' : palette.hairline}`,
+    }}
+  >
+    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+      <h3 style={{ margin: 0, fontSize: 30, fontWeight: 500 }}>{title}</h3>
+      <div style={{ fontFamily: fonts.mono, fontSize: 22 }}>{value}</div>
+    </div>
+    <svg
+      aria-label={`${title} illustrative trend`}
+      viewBox="0 0 680 330"
+      style={{ width: '100%', height: 330, marginTop: 50 }}
+    >
+      <path
+        d={
+          active
+            ? 'M10 290 C140 280 150 235 270 220 C390 205 410 105 540 90 C600 82 635 55 670 24'
+            : 'M10 280 C130 278 170 265 280 248 C400 228 490 192 670 170'
+        }
+        fill="none"
+        stroke={active ? '#FFFFFF' : palette.faint}
+        strokeWidth="4"
+      />
+      <path d="M10 310 H670" fill="none" stroke={palette.line} strokeWidth="1" />
+    </svg>
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        color: palette.faint,
+        fontFamily: fonts.mono,
+        fontSize: 14,
+      }}
+    >
+      <span>START</span>
+      <span>NOW</span>
+    </div>
+  </div>
+);
+
+const DualTrend: Page = () => (
+  <SlideFrame label="Dual trend" padding="104px 120px 80px">
+    <Eyebrow>Illustrative trends</Eyebrow>
+    <PageTitle width={1380}>Show the relationship, not two unrelated charts.</PageTitle>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 64, marginTop: 64 }}>
+      <TrendPanel title="Developer activity" value="+XX%" />
+      <TrendPanel title="Platform consumption" value="+X×" active />
+    </div>
+  </SlideFrame>
+);
+
+const PipelineColumn = ({
+  stage,
+  title,
+  primitive,
+  risk,
+}: {
+  stage: string;
+  title: string;
+  primitive: string;
+  risk: string;
+}) => (
+  <div style={{ borderLeft: `1px solid ${palette.line}` }}>
+    <div style={{ minHeight: 170, padding: 26 }}>
+      <div style={{ color: palette.faint, fontFamily: fonts.mono, fontSize: 15 }}>{stage}</div>
+      <h3 style={{ margin: '26px 0 0', fontSize: 28, fontWeight: 500, lineHeight: 1.15 }}>
+        {title}
+      </h3>
+    </div>
+    <div
+      style={{
+        minHeight: 126,
+        padding: 26,
+        borderTop: `1px solid ${palette.line}`,
+        background: palette.surface,
+      }}
+    >
+      <div style={{ color: palette.faint, fontFamily: fonts.mono, fontSize: 14 }}>
+        PLATFORM PRIMITIVE
+      </div>
+      <div style={{ marginTop: 16, fontSize: 21 }}>{primitive}</div>
+    </div>
+    <div style={{ minHeight: 154, padding: 26, borderTop: `1px solid ${palette.line}` }}>
+      <div style={{ color: palette.amber, fontFamily: fonts.mono, fontSize: 14 }}>FAILURE MODE</div>
+      <div style={{ marginTop: 16, color: palette.muted, fontSize: 19, lineHeight: 1.4 }}>
+        {risk}
+      </div>
+    </div>
+  </div>
+);
+
+const AgentPipeline: Page = () => (
+  <SlideFrame label="Agent pipeline" padding="96px 120px 80px">
+    <Eyebrow>Agent architecture</Eyebrow>
+    <PageTitle width={1380}>Follow the agent from intent to evidence.</PageTitle>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(5, 1fr)',
+        marginTop: 54,
+        borderTop: `1px solid ${palette.line}`,
+        borderRight: `1px solid ${palette.line}`,
+        borderBottom: `1px solid ${palette.line}`,
+      }}
+    >
+      <PipelineColumn
+        stage="01"
+        title="Understand"
+        primitive="Context + model"
+        risk="Incomplete or stale inputs"
+      />
+      <PipelineColumn
+        stage="02"
+        title="Plan"
+        primitive="Durable workflow"
+        risk="Unbounded action sequence"
+      />
+      <PipelineColumn
+        stage="03"
+        title="Act"
+        primitive="Tools + sandbox"
+        risk="Unsafe execution boundary"
+      />
+      <PipelineColumn
+        stage="04"
+        title="Observe"
+        primitive="Traces + evals"
+        risk="No reliable success signal"
+      />
+      <PipelineColumn
+        stage="05"
+        title="Learn"
+        primitive="Memory + feedback"
+        risk="Compounding bad state"
+      />
+    </div>
+  </SlideFrame>
+);
+
+const RiskCell = ({ number, title, detail }: { number: string; title: string; detail: string }) => (
+  <div style={{ minHeight: 190, padding: 26, borderTop: `1px solid ${palette.hairline}` }}>
+    <div style={{ color: palette.faint, fontFamily: fonts.mono, fontSize: 14 }}>{number}</div>
+    <h3 style={{ margin: '26px 0 0', fontSize: 27, fontWeight: 500 }}>{title}</h3>
+    <p style={{ margin: '14px 0 0', color: palette.muted, fontSize: 19, lineHeight: 1.38 }}>
+      {detail}
+    </p>
+  </div>
+);
+
+const RiskLandscape: Page = () => (
+  <SlideFrame label="Risk landscape" padding="104px 120px 80px">
+    <div style={{ display: 'grid', gridTemplateColumns: '650px 1fr', gap: 100, height: '100%' }}>
+      <div>
+        <Eyebrow>Agent readiness</Eyebrow>
+        <PageTitle width={630}>Autonomy exposes a new risk surface.</PageTitle>
+        <p
+          style={{
+            maxWidth: 590,
+            margin: '42px 0 0',
+            color: palette.muted,
+            fontSize: 28,
+            lineHeight: 1.45,
+          }}
+        >
+          Use this layout when the six risks matter as a connected system, not as a ranked backlog.
+        </p>
+      </div>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(2, 1fr)',
+          gap: '22px 40px',
+          alignSelf: 'center',
+        }}
+      >
+        <RiskCell
+          number="01"
+          title="Identity"
+          detail="Who is acting, for whom, and with what authority?"
+        />
+        <RiskCell
+          number="02"
+          title="Context"
+          detail="Which information is complete, current, and allowed?"
+        />
+        <RiskCell
+          number="03"
+          title="Execution"
+          detail="Where can tools run and what can they change?"
+        />
+        <RiskCell
+          number="04"
+          title="Recovery"
+          detail="How does the system stop, roll back, or resume?"
+        />
+        <RiskCell
+          number="05"
+          title="Evaluation"
+          detail="What evidence proves the outcome is correct?"
+        />
+        <RiskCell number="06" title="Governance" detail="Who owns policy, audit, and escalation?" />
+      </div>
+    </div>
+  </SlideFrame>
+);
+
+const UseCase = ({ index, title }: { index: string; title: string }) => (
+  <div style={{ display: 'grid', gridTemplateRows: '1fr auto', minHeight: 0 }}>
+    <div style={{ minHeight: 0, background: palette.surface, border: `1px solid ${palette.line}` }}>
+      <ImagePlaceholder hint={`${title} product or customer visual`} />
+    </div>
+    <div style={{ paddingTop: 24 }}>
+      <div style={{ color: palette.faint, fontFamily: fonts.mono, fontSize: 15 }}>{index}</div>
+      <h3 style={{ margin: '16px 0 0', fontSize: 31, fontWeight: 500 }}>{title}</h3>
+      <p style={{ margin: '12px 0 0', color: palette.muted, fontSize: 20, lineHeight: 1.4 }}>
+        One sentence that names the user, the job, and the outcome.
+      </p>
+    </div>
+  </div>
+);
+
+const UseCaseGallery: Page = () => (
+  <SlideFrame label="Use-case gallery" padding="104px 120px 80px">
+    <Eyebrow>Where the platform wins</Eyebrow>
+    <PageTitle width={1360}>Three use cases, shown in context.</PageTitle>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: 40,
+        minHeight: 540,
+        marginTop: 56,
+      }}
+    >
+      <UseCase index="01" title="Customer-facing agents" />
+      <UseCase index="02" title="Internal workflows" />
+      <UseCase index="03" title="Developer automation" />
+    </div>
+  </SlideFrame>
+);
+
+const BinaryState = ({
+  label,
+  title,
+  detail,
+  active = false,
+}: {
+  label: string;
+  title: string;
+  detail: string;
+  active?: boolean;
+}) => (
+  <div
+    style={{
+      minHeight: 330,
+      padding: 46,
+      border: `1px solid ${active ? '#FFFFFF' : palette.hairline}`,
+      background: active ? '#FFFFFF' : '#000000',
+      color: active ? '#000000' : '#FFFFFF',
+    }}
+  >
+    <div style={{ opacity: 0.56, fontFamily: fonts.mono, fontSize: 16 }}>{label}</div>
+    <h3 style={{ margin: '80px 0 0', fontSize: 50, fontWeight: 600, letterSpacing: '-0.04em' }}>
+      {title}
+    </h3>
+    <p style={{ maxWidth: 520, margin: '22px 0 0', opacity: 0.68, fontSize: 23, lineHeight: 1.4 }}>
+      {detail}
+    </p>
+  </div>
+);
+
+const BinaryModel: Page = () => (
+  <SlideFrame label="Binary model" padding="104px 120px 80px">
+    <Eyebrow>Conceptual model</Eyebrow>
+    <PageTitle width={1360}>Move the system from reactive to autonomous.</PageTitle>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 120px 1fr',
+        alignItems: 'center',
+        marginTop: 72,
+      }}
+    >
+      <BinaryState
+        label="STATE 01"
+        title="Requested"
+        detail="A person asks. The system responds once."
+      />
+      <div
+        style={{ textAlign: 'center', color: palette.faint, fontFamily: fonts.mono, fontSize: 32 }}
+      >
+        →
+      </div>
+      <BinaryState
+        label="STATE 02"
+        title="Durable"
+        detail="The system observes, acts, recovers, and continues."
+        active
+      />
+    </div>
+  </SlideFrame>
+);
+
+const ProductDemo: Page = () => (
+  <SlideFrame label="Product demo" padding="96px 120px 80px">
+    <div style={{ display: 'grid', gridTemplateColumns: '640px 1fr', gap: 92, height: '100%' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <img src={v0} alt="v0" style={{ width: 180, marginBottom: 70 }} />
+        <Eyebrow>Product demo</Eyebrow>
+        <h2
+          style={{
+            margin: '36px 0 0',
+            fontSize: 82,
+            fontWeight: 600,
+            lineHeight: 1,
+            letterSpacing: '-0.05em',
+          }}
+        >
+          From prompt to production interface.
+        </h2>
+        <p style={{ margin: '34px 0 0', color: palette.muted, fontSize: 28, lineHeight: 1.45 }}>
+          Keep the promise on the left and the real product evidence on the right.
+        </p>
+      </div>
+      <div
+        style={{
+          alignSelf: 'center',
+          height: 690,
+          background: palette.surface,
+          border: `1px solid ${palette.hairline}`,
+        }}
+      >
+        <ImagePlaceholder hint="Live product screenshot or demo frame" />
+      </div>
+    </div>
+  </SlideFrame>
+);
+
+const Primitive = ({ icon, title, detail }: { icon: string; title: string; detail: string }) => (
+  <div style={{ minHeight: 210, padding: 28, borderTop: `1px solid ${palette.hairline}` }}>
+    <div
+      style={{
+        width: 42,
+        height: 42,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        border: `1px solid ${palette.hairline}`,
+        fontFamily: fonts.mono,
+        fontSize: 14,
+      }}
+    >
+      {icon}
+    </div>
+    <h3 style={{ margin: '28px 0 0', fontSize: 29, fontWeight: 500 }}>{title}</h3>
+    <p style={{ margin: '12px 0 0', color: palette.muted, fontSize: 19, lineHeight: 1.4 }}>
+      {detail}
+    </p>
+  </div>
+);
+
+const AgentPrimitives: Page = () => (
+  <SlideFrame label="Agent primitives" padding="104px 120px 80px">
+    <div style={{ display: 'grid', gridTemplateColumns: '620px 1fr', gap: 100, height: '100%' }}>
+      <div>
+        <img src={eve} alt="Eve" style={{ width: 260, marginBottom: 64 }} />
+        <Eyebrow>Platform primitives</Eyebrow>
+        <PageTitle width={610}>The pieces that make agents durable.</PageTitle>
+      </div>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(2, 1fr)',
+          gap: '30px 38px',
+          alignSelf: 'center',
+        }}
+      >
+        <Primitive icon="01" title="Workflow" detail="Durable orchestration and retries." />
+        <Primitive icon="02" title="Sandbox" detail="Isolated tool execution." />
+        <Primitive icon="03" title="Gateway" detail="Model access and policy." />
+        <Primitive icon="04" title="Observability" detail="Traces, evidence, and evals." />
+        <Primitive icon="05" title="Storage" detail="State that survives the turn." />
+        <Primitive icon="06" title="Firewall" detail="A governed action boundary." />
+      </div>
+    </div>
+  </SlideFrame>
+);
+
+const PartnerInterstitial: Page = () => (
+  <div style={{ ...fill }}>
+    <style>{animationStyles}</style>
+    <FrameGrid />
+    <div
+      className="vercel-starter-enter"
+      style={{
+        position: 'relative',
+        zIndex: 2,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100%',
+      }}
+    >
+      <PartnerBrandRail />
+    </div>
+    <Footer label="Partnership" />
+  </div>
+);
+
 const ProductEcosystem: Page = () => (
   <SlideFrame label="Product ecosystem" padding="112px 120px 88px">
     <Eyebrow>Vercel products</Eyebrow>
@@ -2161,6 +3378,11 @@ export const meta: SlideMeta = {
   theme: 'vercel',
 };
 
+const canonicalAssetSource =
+  '[Sources]\nCanonical Vercel assets: vercel/front@b0146c25ccd240c77d34264a95bd98a15eaa9c92.';
+const partnerLayoutSource =
+  '[Sources]\nLayout references: user-provided “2026_03_18 - Vercel x SAP - Exec Meeting in SF HQ.pptx” and “Copy of AWS + Vercel Partnership (1).pptx”.';
+
 export const notes: (string | undefined)[] = [
   undefined,
   undefined,
@@ -2185,8 +3407,8 @@ export const notes: (string | undefined)[] = [
   undefined,
   undefined,
   undefined,
-  `[Sources]\nCanonical Eve mark: vercel/front@b0146c25ccd240c77d34264a95bd98a15eaa9c92, packages/geistcn-assets/src/__generated__/svgs/. Public layout references: https://vercel.com/ship/2024/session/opening-keynote and https://vercel.com/ship/ai.`,
-  `[Sources]\nPublic session-artwork reference: https://vercel.com/ship/ai/session/agent-marketplace-demo-showcase.`,
+  `${canonicalAssetSource} Public layout references: https://vercel.com/ship/2024/session/opening-keynote and https://vercel.com/ship/ai.`,
+  '[Sources]\nPublic session-artwork reference: https://vercel.com/ship/ai/session/agent-marketplace-demo-showcase.',
   undefined,
   undefined,
   undefined,
@@ -2197,11 +3419,31 @@ export const notes: (string | undefined)[] = [
   undefined,
   undefined,
   undefined,
-  `[Sources]\nCanonical product marks: vercel/front@b0146c25ccd240c77d34264a95bd98a15eaa9c92, packages/geistcn-assets/src/__generated__/svgs/.`,
-  `[Sources]\nCanonical wordmarks: vercel/front@b0146c25ccd240c77d34264a95bd98a15eaa9c92. FX glyph: apps/vercel-site/app/(dashboard)/components/dash-promotions/promos/fx-glm52-free.tsx at the same commit.`,
-  `[Sources]\nCanonical product icons: vercel/front@b0146c25ccd240c77d34264a95bd98a15eaa9c92, packages/geistcn-assets/src/__generated__/svgs/icons/logo/.`,
-  `[Sources]\nGeist pixel matrices: vercel/front@b0146c25ccd240c77d34264a95bd98a15eaa9c92, packages/geistcn-assets/src/pixels/named/.`,
-  `[Sources]\nLil Pix SVG and animation URLs: vercel/front@b0146c25ccd240c77d34264a95bd98a15eaa9c92.`,
+  partnerLayoutSource,
+  partnerLayoutSource,
+  partnerLayoutSource,
+  partnerLayoutSource,
+  partnerLayoutSource,
+  partnerLayoutSource,
+  partnerLayoutSource,
+  partnerLayoutSource,
+  partnerLayoutSource,
+  partnerLayoutSource,
+  partnerLayoutSource,
+  partnerLayoutSource,
+  partnerLayoutSource,
+  partnerLayoutSource,
+  partnerLayoutSource,
+  partnerLayoutSource,
+  partnerLayoutSource,
+  partnerLayoutSource,
+  partnerLayoutSource,
+  partnerLayoutSource,
+  canonicalAssetSource,
+  `${canonicalAssetSource} FX glyph: apps/vercel-site/app/(dashboard)/components/dash-promotions/promos/fx-glm52-free.tsx at the same commit.`,
+  canonicalAssetSource,
+  canonicalAssetSource,
+  canonicalAssetSource,
   undefined,
   undefined,
 ];
@@ -2242,6 +3484,26 @@ export default [
   ProgressRail,
   PhotoQuote,
   TeamUpdate,
+  ExecutiveCover,
+  VisualAgenda,
+  PresenterRoster,
+  PartnershipStream,
+  WorkstreamMatrix,
+  PartnershipHistory,
+  StatusTriptych,
+  ProofCollage,
+  MetricHorizon,
+  ValueBridge,
+  SixStepGrid,
+  CaseStudyEvidence,
+  DualTrend,
+  AgentPipeline,
+  RiskLandscape,
+  UseCaseGallery,
+  BinaryModel,
+  ProductDemo,
+  AgentPrimitives,
+  PartnerInterstitial,
   ProductEcosystem,
   WordmarkGallery,
   IconGallery,

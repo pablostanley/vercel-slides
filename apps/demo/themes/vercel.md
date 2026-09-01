@@ -41,13 +41,16 @@ mode: dark
 ## Layout
 
 - Canvas: 1920 × 1080, always black unless a content asset intentionally fills the frame.
-- Content padding: 120 px horizontal and 96 px vertical.
+- Content padding: 120 px horizontal. Standard content begins at 112 px and clears the 88 px lower rail.
 - Primary content width: 1680 px. Long-form body copy stays below 1160 px.
 - Grid: 12 columns with 24 px gutters. Use hairlines to explain alignment or data structure, not as ambient decoration on every page.
 - Alignment: predominantly left. Centered compositions are reserved for chapter breaks, quotes, and single-metric pages.
 - Spacing follows a 4 px base. Default jumps are 24, 32, 48, 64, 96, and 120 px.
 - Corners: 0 px by default; 8 px for screenshots and code surfaces; 999 px only for real status dots.
-- Keep the bottom 64 px clear for the footer and the top 64 px clear when a header mark is present.
+- Persistent anchors: 120 px canvas inset, brand mark at 60 px from the top, footer at 36 px from the bottom.
+- Use exactly two brand modes: top-right for standard content; top-left for covers and partner presentations. Do not move these anchors slide by slide.
+- Framed partner layouts use a 120 px inset hairline with 21 px crosshair markers at all four corners.
+- Keep the bottom 88 px clear for the footer and the top 96 px clear when a header mark is present.
 
 ## Type rendering
 
@@ -70,7 +73,7 @@ The shared catalog lives under `@assets/vercel/` and was captured from `vercel/f
 
 ### Starter layout catalog
 
-The reference deck contains 42 layouts: general and product covers, agenda, section divider, statement, title and body, bullets, two- and three-column arguments, quote, large metric, metric set, comparison, timeline, process, bar chart, data table, code, product screenshot, split image, full-bleed image, architecture, roadmap, launch reveal, session opener, team lineup, customer story, data story, recommendation, principles, risks and responses, option spectrum, progress rail, photo quote, weekly team update, product ecosystem, wordmark gallery, icon gallery, Geist pixel gallery, Lil Pix gallery, discussion, and closing.
+The reference deck contains 62 layouts: general and product covers, agenda, section divider, statement, title and body, bullets, two- and three-column arguments, quote, large metric, metric set, comparison, timeline, process, bar chart, data table, code, product screenshot, split image, full-bleed image, architecture, roadmap, launch reveal, session opener, team lineup, customer story, data story, recommendation, principles, risks and responses, option spectrum, progress rail, photo quote, weekly team update, executive partner cover, visual agenda, presenter roster, partnership stream divider, workstream matrix, partnership history, status triptych, proof collage, metric horizon, value bridge, six-step process grid, evidence-rich case study, dual trend, agent pipeline, risk landscape, use-case gallery, binary model, product demo, agent primitives, partner interstitial, product ecosystem, wordmark gallery, icon gallery, Geist pixel gallery, Lil Pix gallery, discussion, and closing.
 
 ### Title
 
