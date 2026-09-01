@@ -288,7 +288,7 @@ const PageTitle = ({ children, width = 1450 }: { children: ReactNode; width?: nu
       maxWidth: width,
       margin: 0,
       fontSize: 70,
-      fontWeight: 600,
+      fontWeight: 500,
       lineHeight: 1.04,
       letterSpacing: '-0.045em',
     }}
@@ -349,7 +349,7 @@ const Metric = ({ value, label, detail }: { value: string; label: string; detail
     <div
       style={{
         fontSize: 88,
-        fontWeight: 600,
+        fontWeight: 500,
         lineHeight: 0.96,
         letterSpacing: '-0.065em',
         fontFeatureSettings: '"tnum" 1, "ss11" 1',
@@ -385,7 +385,7 @@ const Cover: Page = () => (
           maxWidth: 1380,
           margin: '36px 0 0',
           fontSize: 'var(--osd-size-hero)',
-          fontWeight: 600,
+          fontWeight: 500,
           lineHeight: 0.94,
           letterSpacing: '-0.06em',
         }}
@@ -429,7 +429,7 @@ const ProductCover: Page = () => (
         style={{
           margin: '40px 0 0',
           fontSize: 116,
-          fontWeight: 600,
+          fontWeight: 500,
           lineHeight: 0.96,
           letterSpacing: '-0.06em',
         }}
@@ -516,7 +516,7 @@ const SectionDivider: Page = () => (
           maxWidth: 1380,
           margin: '44px 0 0',
           fontSize: 104,
-          fontWeight: 600,
+          fontWeight: 500,
           lineHeight: 0.98,
           letterSpacing: '-0.06em',
         }}
@@ -536,7 +536,7 @@ const Statement: Page = () => (
           maxWidth: 1540,
           margin: 0,
           fontSize: 100,
-          fontWeight: 600,
+          fontWeight: 500,
           lineHeight: 1.01,
           letterSpacing: '-0.055em',
         }}
@@ -661,7 +661,7 @@ const BigNumber: Page = () => (
         style={{
           marginTop: 40,
           fontSize: 264,
-          fontWeight: 600,
+          fontWeight: 500,
           lineHeight: 0.86,
           letterSpacing: '-0.085em',
         }}
@@ -708,7 +708,7 @@ const ComparisonSide = ({
 }) => (
   <div style={{ minHeight: 470, borderTop: `1px solid ${palette.hairline}`, paddingTop: 28 }}>
     <Eyebrow color={tone}>{title}</Eyebrow>
-    <div style={{ marginTop: 54, fontSize: 108, fontWeight: 600, letterSpacing: '-0.07em' }}>
+    <div style={{ marginTop: 54, fontSize: 108, fontWeight: 500, letterSpacing: '-0.07em' }}>
       {value}
     </div>
     <p
@@ -1107,7 +1107,7 @@ const FullBleedImage: Page = () => (
           maxWidth: 1200,
           margin: 0,
           fontSize: 72,
-          fontWeight: 600,
+          fontWeight: 500,
           lineHeight: 1.08,
           letterSpacing: '-0.04em',
         }}
@@ -1296,7 +1296,7 @@ const LaunchReveal: Page = () => (
           maxWidth: 1380,
           margin: '72px 0 0',
           fontSize: 86,
-          fontWeight: 600,
+          fontWeight: 500,
           lineHeight: 1.02,
           letterSpacing: '-0.05em',
         }}
@@ -1370,7 +1370,7 @@ const SessionTitle: Page = () => (
         style={{
           margin: '46px 0 0',
           fontSize: 92,
-          fontWeight: 600,
+          fontWeight: 500,
           lineHeight: 0.98,
           letterSpacing: '-0.055em',
         }}
@@ -1493,7 +1493,7 @@ const CustomerStory: Page = () => (
         }}
       >
         <div
-          style={{ fontSize: 190, fontWeight: 600, lineHeight: 0.88, letterSpacing: '-0.075em' }}
+          style={{ fontSize: 190, fontWeight: 500, lineHeight: 0.88, letterSpacing: '-0.075em' }}
         >
           7×
         </div>
@@ -1570,7 +1570,7 @@ const Decision: Page = () => (
         maxWidth: 1540,
         margin: '42px 0 0',
         fontSize: 106,
-        fontWeight: 600,
+        fontWeight: 500,
         lineHeight: 1,
         letterSpacing: '-0.055em',
       }}
@@ -1810,7 +1810,7 @@ const ProgressRail: Page = () => (
           style={{
             marginTop: 44,
             fontSize: 194,
-            fontWeight: 600,
+            fontWeight: 500,
             lineHeight: 0.9,
             letterSpacing: '-0.075em',
           }}
@@ -2007,7 +2007,7 @@ const ExecutiveCover: Page = () => (
           maxWidth: 1460,
           margin: '32px 0 0',
           fontSize: 108,
-          fontWeight: 600,
+          fontWeight: 500,
           lineHeight: 0.96,
           letterSpacing: '-0.058em',
         }}
@@ -2131,7 +2131,7 @@ const PartnershipStream: Page = () => (
           style={{
             margin: '132px 0 0',
             fontSize: 82,
-            fontWeight: 600,
+            fontWeight: 500,
             lineHeight: 1.02,
             letterSpacing: '-0.05em',
           }}
@@ -2140,7 +2140,7 @@ const PartnershipStream: Page = () => (
           <br />
           Streams
         </h2>
-        <div style={{ marginTop: 6, color: palette.line, fontSize: 58, fontWeight: 600 }}>
+        <div style={{ marginTop: 6, color: palette.line, fontSize: 58, fontWeight: 500 }}>
           2026 partnership
         </div>
       </div>
@@ -2251,7 +2251,7 @@ const HistoryColumn = ({
     >
       {year}
     </div>
-    <h3 style={{ margin: '16px 0 0', fontSize: 32, fontWeight: 600, lineHeight: 1.1 }}>{title}</h3>
+    <h3 style={{ margin: '16px 0 0', fontSize: 32, fontWeight: 500, lineHeight: 1.1 }}>{title}</h3>
     <div
       style={{
         display: 'grid',
@@ -2331,7 +2331,7 @@ const StatusColumn = ({
       {label}
     </div>
     <h3
-      style={{ margin: '12px 0 0', color: tone, fontSize: 34, fontWeight: 600, lineHeight: 1.12 }}
+      style={{ margin: '12px 0 0', color: tone, fontSize: 34, fontWeight: 500, lineHeight: 1.12 }}
     >
       {title}
     </h3>
@@ -2395,7 +2395,7 @@ const EvidenceMetric = ({ value, label }: { value: string; label: string }) => (
     <div
       style={{
         fontSize: 56,
-        fontWeight: 600,
+        fontWeight: 500,
         lineHeight: 1,
         letterSpacing: '-0.055em',
         fontFeatureSettings: '"tnum" 1, "ss11" 1',
@@ -2467,7 +2467,7 @@ const MetricHorizon: Page = () => (
         <div
           style={{
             fontSize: 238,
-            fontWeight: 600,
+            fontWeight: 500,
             lineHeight: 0.8,
             letterSpacing: '-0.085em',
             fontFeatureSettings: '"tnum" 1, "ss11" 1',
@@ -2546,7 +2546,7 @@ const ValueBridge: Page = () => (
       }}
     >
       <div style={{ padding: '32px 44px' }}>
-        <div style={{ fontSize: 118, fontWeight: 600, lineHeight: 0.9, letterSpacing: '-0.065em' }}>
+        <div style={{ fontSize: 118, fontWeight: 500, lineHeight: 0.9, letterSpacing: '-0.065em' }}>
           $1
         </div>
         <div style={{ marginTop: 24, color: palette.muted, fontSize: 22, lineHeight: 1.4 }}>
@@ -2639,7 +2639,7 @@ const CaseStudyEvidence: Page = () => (
           style={{
             margin: '44px 0 0',
             fontSize: 64,
-            fontWeight: 600,
+            fontWeight: 500,
             lineHeight: 1.02,
             letterSpacing: '-0.045em',
           }}
@@ -2951,7 +2951,7 @@ const BinaryState = ({
     }}
   >
     <div style={{ opacity: 0.56, fontFamily: fonts.mono, fontSize: 16 }}>{label}</div>
-    <h3 style={{ margin: '80px 0 0', fontSize: 50, fontWeight: 600, letterSpacing: '-0.04em' }}>
+    <h3 style={{ margin: '80px 0 0', fontSize: 50, fontWeight: 500, letterSpacing: '-0.04em' }}>
       {title}
     </h3>
     <p style={{ maxWidth: 520, margin: '22px 0 0', opacity: 0.68, fontSize: 23, lineHeight: 1.4 }}>
@@ -3002,7 +3002,7 @@ const ProductDemo: Page = () => (
           style={{
             margin: '36px 0 0',
             fontSize: 82,
-            fontWeight: 600,
+            fontWeight: 500,
             lineHeight: 1,
             letterSpacing: '-0.05em',
           }}
@@ -3327,7 +3327,7 @@ const Questions: Page = () => (
           maxWidth: 1480,
           margin: '40px 0 0',
           fontSize: 128,
-          fontWeight: 600,
+          fontWeight: 500,
           lineHeight: 0.98,
           letterSpacing: '-0.055em',
         }}
@@ -3358,7 +3358,7 @@ const Closing: Page = () => (
           maxWidth: 1380,
           margin: '52px 0 0',
           fontSize: 112,
-          fontWeight: 600,
+          fontWeight: 500,
           lineHeight: 1,
           letterSpacing: '-0.055em',
         }}

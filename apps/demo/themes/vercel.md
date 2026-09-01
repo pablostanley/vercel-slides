@@ -25,7 +25,7 @@ mode: dark
 
 ## Typography
 
-- Display font: `'Geist Sans', 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif` — use the bundled variable font, weight 600 for almost every headline, and reserve 700 for short statements only.
+- Display font: `'Geist Sans', 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif` — use the bundled Geist variable font at weight 500 for every heading. Do not use 600 or 700.
 - Body font: `'Geist Sans', 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif` — weight 400, with 500 for labels.
 - Mono font: `'Geist Mono', 'SFMono-Regular', Consolas, monospace` — code, dates, labels, and chart metadata.
 - Pixel font: `'Geist Pixel', 'Geist Mono', monospace` — rare decorative labels paired with Lil Pix or Geist pixel art.
@@ -86,7 +86,7 @@ const Title = ({ children }: { children: React.ReactNode }) => (
       color: '#FFFFFF',
       fontFamily: "'Geist Sans', 'Geist', -apple-system, BlinkMacSystemFont, sans-serif",
       fontSize: 144,
-      fontWeight: 600,
+      fontWeight: 500,
       lineHeight: 0.94,
       letterSpacing: '-0.06em',
     }}
