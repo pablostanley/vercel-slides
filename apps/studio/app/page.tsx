@@ -2,12 +2,22 @@ import { Dashboard } from '@/components/dashboard';
 import { SignIn } from '@/components/sign-in';
 import { getSession } from '@/lib/server/auth';
 import { getStore } from '@/lib/server/get-store';
+import { isLocalAuthEnabled } from '@/lib/server/local-auth';
 
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
   const session = await getSession();
-  if (!session) return <SignIn />;
+  if (!session) {
+    return (
+      <SignIn
+        localAuthEnabled={isLocalAuthEnabled()}
+        vercelAuthEnabled={Boolean(
+          process.env.NEXT_PUBLIC_VERCEL_APP_CLIENT_ID && process.env.VERCEL_APP_CLIENT_SECRET,
+        )}
+      />
+    );
+  }
   const decks = await getStore().listDecks(session.id);
   return <Dashboard session={session} decks={decks} />;
 }

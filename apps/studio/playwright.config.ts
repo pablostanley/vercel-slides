@@ -15,7 +15,7 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
   webServer: {
-    command: `STUDIO_TEST_AUTH=1 STUDIO_STORAGE=${storage} STUDIO_MEMORY_NAMESPACE=${memoryNamespace} pnpm dev`,
+    command: `STUDIO_TEST_AUTH=1 STUDIO_LOCAL_AUTH=1 STUDIO_STORAGE=${storage} STUDIO_MEMORY_NAMESPACE=${memoryNamespace} pnpm dev`,
     url: 'http://127.0.0.1:3100',
     reuseExistingServer: false,
     timeout: 120_000,

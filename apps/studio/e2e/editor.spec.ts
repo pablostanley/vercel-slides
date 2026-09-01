@@ -24,6 +24,18 @@ async function signIn(page: Page, identity = 'owner', role: 'user' | 'admin' = '
   return (await response.json()).session as { csrfToken: string };
 }
 
+test('opens a loopback-only local authoring session', async ({ page }) => {
+  test.skip(test.info().project.name !== 'desktop', 'Desktop local authoring workflow');
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Open local studio' }).click();
+  await expect(page.getByRole('heading', { name: 'What are you making?' })).toBeVisible();
+  await expect(page.getByText('Local author', { exact: true })).toBeVisible();
+  await expect(page.getByText('admin', { exact: true })).toBeVisible();
+  const response = await page.request.get('/api/auth/session');
+  expect(response.ok()).toBe(true);
+  expect((await response.json()).session).toMatchObject({ id: 'local:author', role: 'admin' });
+});
+
 test('creates, edits, persists, structures, presents, and shares a deck', async ({
   page,
   browser,
