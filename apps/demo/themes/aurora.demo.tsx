@@ -14,7 +14,7 @@ const Title = ({ children }: { children: ReactNode }) => (
     style={{
       fontFamily: SANS,
       fontSize: 116,
-      fontWeight: 600,
+      fontWeight: 500,
       lineHeight: 1.05,
       letterSpacing: '-0.02em',
       margin: 0,
@@ -170,7 +170,7 @@ const Content: Page = () => (
         style={{
           fontFamily: SANS,
           fontSize: 56,
-          fontWeight: 600,
+          fontWeight: 500,
           letterSpacing: '-0.015em',
           lineHeight: 1.1,
           margin: 0,

@@ -23,11 +23,11 @@ A four-colour accent system: blue is the lead; the other three appear once each,
 
 ## Typography
 
-- Display font: `'Inter Tight', 'Inter', -apple-system, system-ui, sans-serif` — weight 600.
+- Display font: `'Inter Tight', 'Inter', -apple-system, system-ui, sans-serif` — weight 500 for headings.
 - Body font: `'Inter', -apple-system, system-ui, sans-serif` — weight 400, weight 500 for emphasis.
 - Type scale:
   - Hero title: 132 px, line-height 1.05, letter-spacing -0.02em.
-  - Page heading: 56 px, weight 600.
+  - Page heading: 56 px, weight 500.
   - Body text: 32 px, line-height 1.5.
   - Eyebrow: 16 px, weight 600, letter-spacing 0.04em (sentence case, not uppercase).
 
@@ -47,7 +47,7 @@ const Title = ({ children }: { children: React.ReactNode }) => (
     style={{
       fontFamily: "'Inter Tight', 'Inter', -apple-system, system-ui, sans-serif",
       fontSize: 132,
-      fontWeight: 600,
+      fontWeight: 500,
       lineHeight: 1.05,
       letterSpacing: '-0.02em',
       margin: 0,

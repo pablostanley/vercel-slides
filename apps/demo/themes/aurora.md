@@ -20,12 +20,12 @@ description: Dark developer-doc deck — black canvas, single violet glow, round
 
 ## Typography
 
-- Display font: `-apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', system-ui, sans-serif` — weight 600.
+- Display font: `-apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', system-ui, sans-serif` — weight 500 for headings.
 - Body font: same — weight 400, weight 500 for emphasis.
 - Mono font: `'SF Mono', 'JetBrains Mono', 'Menlo', monospace` — for paths, file names, page numbers, eyebrow tags.
 - Type scale:
   - Hero title: 116 px, line-height 1.05, letter-spacing -0.02em.
-  - Page heading: 56 px, weight 600.
+  - Page heading: 56 px, weight 500.
   - Body text: 26 px, line-height 1.5.
   - Eyebrow / tag: 18 px, mono, uppercase, letter-spacing 0.18em.
   - Footer / counter: 22 px, mono.
@@ -48,7 +48,7 @@ const Title = ({ children }: { children: React.ReactNode }) => (
     style={{
       fontFamily: "-apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', system-ui, sans-serif",
       fontSize: 116,
-      fontWeight: 600,
+      fontWeight: 500,
       lineHeight: 1.05,
       letterSpacing: '-0.02em',
       margin: 0,
