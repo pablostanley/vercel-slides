@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const memoryNamespace = `playwright-${process.pid}`;
+const storage = process.env.STUDIO_E2E_STORAGE === 'neon' ? 'neon' : 'memory';
 
 export default defineConfig({
   testDir: './e2e',
@@ -14,7 +15,7 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
   webServer: {
-    command: `STUDIO_TEST_AUTH=1 STUDIO_STORAGE=memory STUDIO_MEMORY_NAMESPACE=${memoryNamespace} pnpm dev`,
+    command: `STUDIO_TEST_AUTH=1 STUDIO_STORAGE=${storage} STUDIO_MEMORY_NAMESPACE=${memoryNamespace} pnpm dev`,
     url: 'http://127.0.0.1:3100',
     reuseExistingServer: false,
     timeout: 120_000,
